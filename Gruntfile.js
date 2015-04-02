@@ -33,11 +33,11 @@ module.exports = function (grunt) {
         }
       },
       less: {
-        files: ['<%= yeoman.app %>/styles/{,*/}*.less', ''],
-        tasks: ['less']
+        files: ['<%= config.app %>/styles/{,*/}*.less'],
+        tasks: ['less', 'autoprefixer']
       },
       rosetta: {
-        files: ['<%= yeoman.app %>/rosetta/{,*/}*.rose'],
+        files: ['<%= config.app %>/rosetta/{,*/}*.rose'],
         tasks: ['rosetta']
       },
       gruntfile: {
@@ -110,7 +110,7 @@ module.exports = function (grunt) {
       all: [
         'Gruntfile.js',
         '<%= config.app %>/scripts/{,*/}*.js',
-        '!<%= config.app %>/scripts/vendor/*'
+        '!<%= config.app %>/scripts/rosetta.js'
       ]
     },
 
@@ -151,11 +151,25 @@ module.exports = function (grunt) {
           jsFormat: 'flat',
           cssFormat: 'less',
           jsOut: '<%= config.app %>/scripts/rosetta.js',
-          cssOut: '<%= config.app %>/styles/rosetta.less',
+          cssOut: '<%= config.app %>/styles/rosetta.less'
         }
       }
     },
 
+    less: {
+      options: {
+        paths: ['<%= config.app %>/styles'],
+        cleancss: true
+      },
+      files: {
+        expand: true,
+        cwd: '<%= config.app %>/styles',
+        src: ['**/*.less'],
+        dest: '.tmp/styles',
+        ext: '.css'
+      }
+    },
+    
     // Reads HTML for usemin blocks to enable smart builds that automatically
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
@@ -288,7 +302,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.loadNpmTasks('rosetta');
+grunt.loadNpmTasks('rosetta');
 
   grunt.registerTask('serve', 'start the server and preview your app, --allow-remote for remote access', function (target) {
     if (grunt.option('allow-remote')) {
@@ -301,6 +315,8 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'concurrent:server',
+      'rosetta',
+      'less',
       'autoprefixer',
       'connect:livereload',
       'watch'

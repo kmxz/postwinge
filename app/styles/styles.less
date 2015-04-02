@@ -1,60 +1,39 @@
+@import "rosetta";
+
+@postProperWidth: @postGrossWidth - 2 * @postWingWidth;
+
 html, body {
   margin: 0;
   border: 0;
   background: #024d61;
 }
 
-@post-gross-width: 160px;
-@post-proper-width: 120px;
-@post-height: 80px;
-@post-background: rgba(255, 255, 255, 0.57);
-@post-active-background: rgba(255, 255, 255, 1);
-@post-inactive-background: rgba(255, 255, 255, 0.5);
-
 .post {
   position: absolute;
-  width: @post-gross-width;
-  height: @post-height;
+  width: @postGrossWidth;
+  height: @postHeight;
   & > div {
     position: absolute;
-    height: @post-height;
+    height: @postHeight;
     top: 0;
   }
   .left-arrow, .right-arrow {
     width: 0;
     height: 0;
-    border-top: (@post-height / 2) solid transparent;
-    border-bottom: (@post-height / 2) solid transparent;
+    border-top: (@postHeight / 2) solid transparent;
+    border-bottom: (@postHeight / 2) solid transparent;
   }
   .left-arrow {
     left: 0;
-    border-right: ((@post-gross-width - @post-proper-width) / 2) solid @post-background;
+    border-right: @postWingWidth solid @postDefaultBackground;
   }
-  .middle {
-    width: @post-proper-width;
-    left: (@post-gross-width - @post-proper-width) / 2;
-    background: @post-background;
+  .post-proper {
+    width: @postProperWidth;
+    left: @postWingWidth;
+    background: @postDefaultBackground;
   }
   .right-arrow {
     right: 0;
-    border-left: ((@post-gross-width - @post-proper-width) / 2) solid @post-background;
-  }
-}
-
-.post.active {
-  .left-arrow {
-    border-right-color: @post-active-background;
-  }
-  .middle {
-    background: @post-active-background;
-  }
-}
-
-.post.inactive {
-  .left-arrow {
-    border-right-color: @post-inactive-background;
-  }
-  .middle {
-    background: @post-inactive-background;
+    border-left: @postWingWidth solid @postDefaultBackground;
   }
 }

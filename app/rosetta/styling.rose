@@ -1,7 +1,14 @@
-post:
-  $grossWidth = 160px
-  $properWidth = 120px
-  $height = 800px
-  $defaultBackground = rgba(255, 255, 255, 0.75)
-  $activeBackground = rgba(255, 255, 255, 1)
-  $inactiveBackground = rgba(255, 255, 255, 0.5)
+// single post in canvas
+$postGrossWidth = 160px
+$postWingWidth = 20px
+$postHeight = 100px
+$postDefaultBackground = rgba(255, 255, 255, 0.75)
+$postActiveBackground = rgba(255, 255, 255, 1)
+$postInactiveBackground = rgba(255, 255, 255, 0.5)
+
+// canvas
+$numOfPostsX = 64
+$numOfPostsY = 96
+$canvasPadding = 40
+$canvasGrossWidth = ($postGrossWidth) * $numOfPostsX + $postWingWidth + 2 * $canvasPadding
+$canvasGrossHeight = $postHeight * ($numOfPostsY + 0.5) + 2 * $canvasPadding
