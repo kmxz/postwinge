@@ -1,0 +1,7 @@
+post:
+  $grossWidth = 160px
+  $properWidth = 120px
+  $height = 800px
+  $defaultBackground = rgba(255, 255, 255, 0.75)
+  $activeBackground = rgba(255, 255, 255, 1)
+  $inactiveBackground = rgba(255, 255, 255, 0.5)
