@@ -1,11 +1,19 @@
 @import "rosetta";
 
 @postProperWidth: @postGrossWidth - 2 * @postWingWidth;
+@canvasGrossWidth: (@postGrossWidth + @postProperWidth + 2 * @postMarginX) * @numOfPostsX - @postMarginX + @postWingWidth + 2 * @canvasPadding;
+@canvasGrossHeight: (@postHeight + @postMarginY) * @numOfPostsY / 2 - @postMarginY / 2 + @postHeight / 2 + 2 * @canvasPadding;
 
 html, body {
   margin: 0;
   border: 0;
   background: #024d61;
+}
+
+.canvas {
+  width: @canvasGrossWidth;
+  height: @canvasGrossHeight;
+  position: relative;
 }
 
 .post {
@@ -26,14 +34,17 @@ html, body {
   .left-arrow {
     left: 0;
     border-right: @postWingWidth solid @postDefaultBackground;
+    box-shadow: -15px 0px 15px -15px #000;
   }
   .post-proper {
     width: @postProperWidth;
     left: @postWingWidth;
     background: @postDefaultBackground;
+    box-shadow: 0 15px 15px -15px #000, 0 -15px 15px -15px #000;
   }
   .right-arrow {
     right: 0;
     border-left: @postWingWidth solid @postDefaultBackground;
+    box-shadow: 15px 0px 15px -15px #000;
   }
 }
