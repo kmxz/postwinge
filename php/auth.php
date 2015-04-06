@@ -12,4 +12,8 @@ if (isset($_POST['key'])) {
   }
 }
 
+if (!$user_id) {
+  panic('Log in first!');
+}
+
 ?>

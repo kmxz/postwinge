@@ -56,12 +56,6 @@ function legal_post_id($post_id, $user_id) {
   return $id;
 }
 
-$user_id = user_id();
-
-if (!$user_id) {
-  panic('Log in first!');
-}
-
 switch ($_POST['action']) {
   case 'create':
     if (get_empty_post_count_of_user($user_id) > 0) {

@@ -6,7 +6,7 @@ if (isset($_GET['post_id'])) {
   // all revisions of a specific post
   $id = intval($_GET['post_id']);
   // we don't actually check whether the post exists, as it will not harm anyway
-  $stmt = $mysqli->prepare('SELECT `revision_id`, `datetime`, `content` FROM `post_free_revision` WHERE `post_id` = ?');
+  $stmt = $mysqli->prepare('SELECT `revision_id`, `datetime`, `text_content` FROM `post_free_revision` WHERE `post_id` = ?');
   $stmt->bind_param('i', $id);
   if (!$stmt->execute()) { panic('SQL Error!'); }
   success($stmt->get_result()->fetch_all(MYSQLI_ASSOC));
