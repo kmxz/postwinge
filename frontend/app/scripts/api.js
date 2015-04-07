@@ -22,23 +22,27 @@ var api = (function () {
         var onerror = opt_onerror || function () {};
         var params = opt_params || [];
         var formData = null;
-        config.params.forEach(function (key) {
-            if (!(params.hasOwnProperty(key))) {
-                throw 'Parameter ' + key + ' not provided for ' + api + '.';
-            }
-        });
+        var hasParam = config.params && config.params.length;
+        if (hasParam) {
+            config.params.forEach(function (key) {
+                if (!(params.hasOwnProperty(key))) {
+                    throw 'Parameter ' + key + ' not provided for ' + api + '.';
+                }
+            });
+        }
         if (config.method === 'post') {
             if (!window.localStorage['key']) {
                 alert('Please login to enjoy this feature.');
                 return;
             }
-            if (config.params && config.params.length) {
-                formData = new FormData();
+            formData = new FormData();
+            formData.append('key', window.localStorage['key']);
+            if (hasParam) {
                 config.params.forEach(function (key) {
                     formData.append(key, params[key]);
                 });
             }
-        } else if (config.method === 'get') {
+        } else if (config.method === 'get' && hasParam) {
             url += '?' + config.params.map(function (key) {
                 return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
             }).join('&');
@@ -50,26 +54,25 @@ var api = (function () {
             if (xhr.status === 200) {
                 try {
                     res = JSON.parse(xhr.responseText);
-                    if (res['success']) {
-                        onsucess(res['data']);
-                    } else {
-                        window.alert(res['data']);
-                        onerror(res['data']);
-                    }
                 } catch (_) {
                     window.alert('Server response parsing failed! Raw content: ' + xhr.responseText);
                     onerror();
+                }
+                if (res['success']) {
+                    onsucess(res['data']);
+                } else {
+                    window.alert(res['data']);
+                    onerror(res['data']);
                 }
             } else {
                 window.alert('The server rejected request. Status code: ' + xhr.status + '. Raw content: ' + xhr.responseText);
                 onerror();
             }
         };
-        xhr.onerror = function (error) {
+        xhr.onerror = function () {
             window.alert('Network error!');
             onerror();
         };
-        xhr.setRequestHeader('X-Db-Connection-Id', dbConnId);
         xhr.send(formData);
     };
-});
+})();

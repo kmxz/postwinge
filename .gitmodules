@@ -1,3 +1,0 @@
-[submodule "php/phpCAS"]
-	path = php/phpCAS
-	url = https://github.com/Jasig/phpCAS.git
