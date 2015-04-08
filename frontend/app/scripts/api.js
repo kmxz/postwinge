@@ -14,7 +14,9 @@ var api = (function () {
         // update a post
         'update': {method: 'post', url: 'create.php', params: ['post_id', 'text_content']},
         // whoami
-        'whoami': {method: 'post', url: 'whoami.php'}
+        'whoami': {method: 'post', url: 'whoami.php'},
+        // login
+        'login': {method: 'get', url: 'login.php', params: ['token']}
     };
     return function (api, onsucess, opt_params, opt_onerror) {
         var config = actions[api];
@@ -31,12 +33,12 @@ var api = (function () {
             });
         }
         if (config.method === 'post') {
-            if (!window.localStorage['key']) {
+            if (!localStorage['postwingeSession']) {
                 alert('Please login to enjoy this feature.');
                 return;
             }
             formData = new FormData();
-            formData.append('key', window.localStorage['key']);
+            formData.append('key', localStorage['postwingeSession']);
             if (hasParam) {
                 config.params.forEach(function (key) {
                     formData.append(key, params[key]);

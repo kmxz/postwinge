@@ -61,6 +61,20 @@ var dom = (function () {
             }
             append(element, children);
             return element;
+        },
+        clear: function (el) {
+            el.innerHTML = '';
+        },
+        centerWindow: function () {
+            window.scrollTo((document.documentElement.scrollWidth - document.documentElement.clientWidth) / 2, (document.documentElement.scrollHeight - document.documentElement.clientHeight) / 2);
+        },
+        cloneToFixed: function (el) {
+            var rect = el.getBoundingClientRect();
+            var nel = el.cloneNode(true);
+            nel.style.position = 'fixed';
+            nel.style.left = rect.left;
+            nel.style.top = rect.top;
+            return nel;
         }
     };
 })();

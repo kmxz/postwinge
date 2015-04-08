@@ -7,18 +7,49 @@ https://github.com/kmxz/postwinge
 <html>
   <head lang="en">
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="http://bootswatch.com/paper/bootstrap.min.css" />
     <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="styles/bootstrap.min.css" />
     <link rel="stylesheet" href="styles/styles.css" />
     <!-- endbuild -->
   </head>
   <body>
+    <div class="alert alert-dismissible alert-warning" id="warning">
+      <h4>Browser not supported!</h4>
+      <p>It is detected that your browser does not support some standard features required for this site to display. Please use latest Google Chrome or Mozilla Firefox. If you insist on Internet Explorer, use version 10 or newer versions.</p>
+    </div>
+    <div id="sidebar">
+      <div class="sidebar-group">
+        <p><button class="btn btn-default">我想对你说</button></p>
+      </div>
+      <div class="sidebar-group" id="user-info">
+        <p>You are logged-in as <span>guest</span></p>
+      </div>
+      <div class="sidebar-group" id="login">
+        <p><button type="button" class="btn btn-primary">Log in</button></p>
+        <p>Log in with your ITSC account [<span>?</span>] to post.</p>
+      </div>
+      <div class="sidebar-group">
+        Click on a post to view or reply, and click on an empty slot to post.
+      </div>
+      <div class="sidebar-group">
+        <p>Activities:</p>
+        <ul id="activities">
+          <li><span class="date">9:13 AM</span> <span class="name">匿名用户</span> edited post <span class="postname">你们这些傻逼</span></li>
+        </ul>
+      </div>
+    </div>
     <div class="canvas">
     </div>
+    <div id="write">
+      <div class="icon"></div>
+      Click to post
+    </div>
     <!-- build:js({app,.tmp}) scripts/main.js -->
+    <script src="scripts/modernizr.js"></script>
     <script src="scripts/rosetta.js"></script>
     <script src="scripts/dom.js"></script>
     <script src="scripts/api.js"></script>
+    <script src="scripts/login.js"></script>
     <script src="scripts/main.js"></script>
     <!-- endbuild -->
   </body>

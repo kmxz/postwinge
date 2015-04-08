@@ -2,9 +2,6 @@
 $postGrossWidth = 160px
 $postWingWidth = 20px
 $postHeight = 80px
-$postDefaultBackground = rgba(255, 255, 255, 0.75)
-$postActiveBackground = rgba(255, 255, 255, 1)
-$postInactiveBackground = rgba(255, 255, 255, 0.5)
 
 // canvas
 $numOfPostsX = 48
