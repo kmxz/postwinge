@@ -1,5 +1,6 @@
 <?php
 
+require_once('main.php');
 require_once('auth.php');
 
 $stmt = $mysqli->prepare('SELECT `user_id`, `display` FROM `user` WHERE `user_id` = ?');
