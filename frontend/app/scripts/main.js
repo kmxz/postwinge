@@ -1,8 +1,9 @@
-/* global api, dom, rosetta */
+/* global api, dom, login, rosetta */
 (function() {
     'use strict';
 
     var canvas = document.getElementsByClassName('canvas')[0];
+    var write = document.getElementById('write');
 
     var slots = [];
 
@@ -16,20 +17,28 @@
            dom.create('div', { className: 'right-arrow' })
         ]);
         this.post = null;
-        this.proper.addEventListener('mouseenter', this.mouseenter.bind(this))
+        this.proper.addEventListener('mouseenter', this.mouseenter.bind(this));
+        this.proper.addEventListener('mouseleave', this.mouseleave.bind(this));
         canvas.appendChild(this.el);
     };
 
     Slot.prototype.mouseenter = function () {
+        this.el.classList.add('hover');
         if (this.post) {
-            if (this.post.userId === currentUserId) {
+            if (this.post.userId === login.getUserId()) {
 
             } else {
 
             }
         } else {
-
+            write.style.display = 'block';
+            this.proper.appendChild(write);
         }
+    };
+
+    Slot.prototype.mouseleave = function () {
+        this.el.classList.remove('hover');
+        write.style.display = 'none';
     };
 
     Slot.prototype.getLocationAndSet = function () {
@@ -39,18 +48,6 @@
         top += this.y / 2 * (rosetta.postHeight.val + rosetta.postMarginY.val);
         this.el.style.left = left + 'px';
         this.el.style.top = top + 'px';
-    };
-
-    Slot.prototype.getNeighbors = function () {
-        var ret = [[this.x, this.y - 2], [this.x, this.y + 2], [this.x, this.y - 1], [this.x, this.y + 1], [this.x, this.y - 1], [this.x, this.y + 1]];
-        var offset = (this.y & 1) ? 1 : -1;
-        ret[4][0] += offset;
-        ret[5][0] += offset;
-        return ret.filter(function (coord) {
-            return (coord[0] >= 0) && (coord[0] < rosetta.numOfPostsX.val) && (coord[1] >= 0) && (coord[1] < rosetta.numOfPostsY.val);
-        }).map(function (coord) {
-            return slots[coord[1]][coord[0]];
-        });
     };
 
     var i, j;
@@ -64,9 +61,7 @@
 
     var smartFont = function (el, content) {
         var fs;
-        while (el.firstChild) {
-            el.removeChild(el.firstChild);
-        }
+        dom.clear(el);
         dom.append(el, content);
         for (fs = 14; fs <= 38; fs++) {
             el.style.fontSize = fs + 'px';
@@ -95,11 +90,14 @@
         smartFont(this.slot.proper, this.textContent);
     };
 
+    dom.centerWindow();
+
     api('posts', function (res) {
         res.forEach(function (post) {
             var postObj = new Post(post);
             posts[post['post_id']] = postObj;
             postObj.render();
         });
+        canvas.classList.add('loaded');
     });
 })();

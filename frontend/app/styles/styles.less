@@ -4,16 +4,31 @@
 @canvasGrossWidth: (@postGrossWidth + @postProperWidth + 2 * @postMarginX) * @numOfPostsX - @postMarginX + @postWingWidth + 2 * @canvasPadding;
 @canvasGrossHeight: (@postHeight + @postMarginY) * @numOfPostsY / 2 - @postMarginY / 2 + @postHeight / 2 + 2 * @canvasPadding;
 
+@postDefaultBackground: rgba(249,249,249,0.6);
+@postActiveBackground: rgba(249,249,249,0.95);
+
 html, body {
   margin: 0;
   border: 0;
-  background: #024d61;
+}
+
+body {
+  background-image: url(../images/bg.jpg);
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 .canvas {
   width: @canvasGrossWidth;
   height: @canvasGrossHeight;
   position: relative;
+  z-index: 10;
+  opacity: 0;
+  user-select: none;
+  &.loaded {
+    opacity: 1;
+    transition: 0.5s;
+  }
 }
 
 .post {
@@ -34,22 +49,130 @@ html, body {
   .left-arrow {
     left: 0;
     border-right: @postWingWidth solid @postDefaultBackground;
-    box-shadow: -15px 0px 15px -15px #000;
   }
   .post-proper {
     width: @postProperWidth;
     left: @postWingWidth;
     background: @postDefaultBackground;
-    box-shadow: 0 15px 15px -15px #000, 0 -15px 15px -15px #000;
+    box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.5), 0 -5px 5px -5px rgba(0, 0, 0, 0.5);
     line-height: 150%;
     overflow: hidden;
   }
   .right-arrow {
     right: 0;
     border-left: @postWingWidth solid @postDefaultBackground;
-    box-shadow: 15px 0px 15px -15px #000;
   }
-  &.empty {
+  &.hover {
+    .post-proper {
+      background: @postActiveBackground;
+    }
+    .left-arrow {
+      border-right-color: @postActiveBackground;
+    }
+    .right-arrow {
+      border-left-color: @postActiveBackground;
+    }
+  }
+  &.empty, &.inactive {
     opacity: 0.5;
+    &.hover {
+      opacity: 0.75;
+    }
   }
+}
+
+.modal {
+  display: block
+  opacity: 0;
+  background: rgba(0, 0, 0, 0.25);
+  transition: opacity 0.25s;
+  .modal-dialog {
+    transition: 0.25s;
+    transform: scale(0, 1);
+  }
+
+  &.shown {
+    display: block;
+    opacity: 1;
+
+    .modal-dialog {
+      transform: scale(1, 1);
+    }
+  }
+}
+
+iframe {
+  visibility: hidden;
+}
+
+#sidebar {
+  height: 100%;
+  width: 280px;
+  padding: 20px;
+  background: linear-gradient(to right, rgba(204,204,204,0.65) 0%, rgba(204,204,204,0.95) 100%);
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 50;
+  box-shadow: -5px 0 5px -5px rgba(0, 0, 0, 0.5);
+  color: #01252f;
+}
+
+.sidebar-group {
+  margin-top: 15px;
+  padding-top: 15px;
+  box-shadow: 0 -3px 3px -3px rgba(1, 37, 47, 0.5);
+  &:first-child {
+    margin-top: 0;
+    box-shadow: none;
+  }
+}
+
+#user-info, #login {
+  display: none;
+}
+
+#login span {
+  cursor: pointer;
+}
+
+#write {
+  width: 100%;
+  padding-top: (@postHeight - (24px + 32px)) / 2;
+  text-transform: uppercase;
+  text-align: center;
+  display: none;
+  cursor: pointer;
+  .icon {
+    width: 32px;
+    height: 32px;
+    background: url(../images/write.png);
+    opacity: 0.6;
+    margin: 0 auto;
+  }
+}
+
+#activities {
+  list-style: none;
+  padding: 0;
+  li {
+    color: #333333;
+    .date {
+      display: inline-block;
+      width: 60px;
+    }
+    .name, .postname {
+      color: #01252f;
+    }
+    .postname {
+      cursor: pointer;
+    }
+  }
+}
+
+#warning {
+  width: 100%;
+  position: fixed;
+  z-index: 1000;
+  display: none;
 }
