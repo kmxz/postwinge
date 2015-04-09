@@ -22,6 +22,15 @@
         'mouseEnterLeave': function () {
             var div = document.createElement('div');
             return ('onmouseenter' in div && 'onmouseleave' in div);
+        },
+        'transitionTransform': function () {
+            var div = document.createElement('div');
+            return ('transition' in div.style && 'transform' in div.style);
+        },
+        'cssCalc': function () {
+            var div = document.createElement('div');
+            div.style.cssText = 'width: calc(10px)';
+            return !!div.style.length;
         }
     };
     var support = true;

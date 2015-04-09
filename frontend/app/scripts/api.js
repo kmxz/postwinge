@@ -10,7 +10,9 @@ var api = (function () {
         // all free posts
         'posts': {method: 'get', url: 'list.php'},
         // create a new post
-        'create': {method: 'post', url: 'create.php', params: ['image', 'reply_to', 'x', 'y']},
+        'create': {method: 'post', url: 'create.php', params: ['x', 'y']},
+        // upload an image
+        'image': {method: 'post', url: 'image.php', params: ['post_id', 'image']},
         // update a post
         'update': {method: 'post', url: 'create.php', params: ['post_id', 'text_content']},
         // whoami

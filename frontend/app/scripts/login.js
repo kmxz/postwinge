@@ -18,8 +18,7 @@ var login = (function () {
         api('whoami', function (result) {
             currentUserId = result['user_id'];
             currentDisplay = result['display'];
-            dom.clear(span);
-            dom.append(span, currentDisplay);
+            dom.put(span, currentDisplay);
             login.style.display = 'none';
             userInfo.style.display = 'block';
         });
@@ -34,7 +33,7 @@ var login = (function () {
     });
 
     a.addEventListener('click', function () {
-        window.alert('We will not know your credentials. They\'ll be directly sent to ITSC servers, and we\'ll only know the authentication results. If you do not have an active ITSC account, email us to request for posting access.');
+        window.alert('Use your HKUST ITSC account to log in. Relax, we will not know your credentials. They\'ll be directly sent to ITSC servers via HTTPS, and we\'ll only know the authentication results. If you do not have an active ITSC account, email us to request for posting access.');
     });
 
     if (localStorage['postwingeSession']) {
@@ -59,6 +58,9 @@ var login = (function () {
         },
         getUserId: function () {
             return currentUserId;
+        },
+        getDisplay: function () {
+            return currentDisplay;
         }
     };
 })();

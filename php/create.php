@@ -6,7 +6,7 @@ require_once('auth.php');
 // the number of posts having no text content and no image
 function get_empty_post_count_of_user($user_id) {
   global $mysqli;
-  $stmt = mysqli->prepare('SELECT COUNT(*) FROM `post_free` WHERE `user_id` = ? AND `image` IS NULL AND NOT EXISTS (SELECT * FROM `post_free_revision` WHERE `post_id` = `post_free`.`id`)');
+  $stmt = $mysqli->prepare('SELECT COUNT(*) FROM `post_free` WHERE `user_id` = ? AND `image` IS NULL AND NOT EXISTS (SELECT * FROM `post_free_revision` WHERE `post_id` = `post_free`.`id`)');
   $stmt->bind_param('i', $user_id);
   if (!$stmt->execute()) { panic('SQL Error!'); }
   $result = $stmt->get_result()->fetch_row();
@@ -22,7 +22,7 @@ function legal_pos($x, $y) {
   if ($iy < 0 || $iy >= 128) {
     panic('Illegal Y coordinate.');
   }
-  $stmt = mysqli->prepare('SELECT `id` FROM `post_free` WHERE `coord_x` = ? AND `coord_y` = ?');
+  $stmt = $mysqli->prepare('SELECT `id` FROM `post_free` WHERE `coord_x` = ? AND `coord_y` = ?');
   $stmt->bind_param('ii', $ix, $iy);
   if (!$stmt->execute()) { panic('SQL Error!'); }
   if ($stmt->get_result()->fetch_row()) {

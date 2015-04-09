@@ -1,6 +1,6 @@
 // single post in canvas
 $postGrossWidth = 160px
-$postWingWidth = 20px
+$postWingWidth = 25px
 $postHeight = 80px
 
 // canvas
@@ -9,3 +9,9 @@ $numOfPostsY = 128
 $canvasPadding = 40px
 $postMarginX = 8px
 $postMarginY = 10px
+
+// post popped
+$popRatio = 5
+
+// duration
+$duration = 0.5s

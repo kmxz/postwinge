@@ -5,7 +5,7 @@
 @canvasGrossHeight: (@postHeight + @postMarginY) * @numOfPostsY / 2 - @postMarginY / 2 + @postHeight / 2 + 2 * @canvasPadding;
 
 @postDefaultBackground: rgba(249,249,249,0.6);
-@postActiveBackground: rgba(249,249,249,0.95);
+@postActiveBackground: rgba(249,249,249,0.85);
 
 html, body {
   margin: 0;
@@ -27,17 +27,17 @@ body {
   user-select: none;
   &.loaded {
     opacity: 1;
-    transition: 0.5s;
+    transition: @duration;
   }
 }
 
 .post {
   position: absolute;
-  width: @postGrossWidth;
+  width: @postProperWidth;
   height: @postHeight;
   & > div {
     position: absolute;
-    height: @postHeight;
+    height: 100%;
     top: 0;
   }
   .left-arrow, .right-arrow {
@@ -47,19 +47,23 @@ body {
     border-bottom: (@postHeight / 2) solid transparent;
   }
   .left-arrow {
-    left: 0;
+    right: 100%;
     border-right: @postWingWidth solid @postDefaultBackground;
   }
   .post-proper {
-    width: @postProperWidth;
-    left: @postWingWidth;
+    width: 100%;
     background: @postDefaultBackground;
     box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.5), 0 -5px 5px -5px rgba(0, 0, 0, 0.5);
     line-height: 150%;
-    overflow: hidden;
+    .post-core {
+      width: @postProperWidth;
+      height: 100%;
+      margin: auto;
+      overflow: hidden;
+    }
   }
   .right-arrow {
-    right: 0;
+    left: 100%;
     border-left: @postWingWidth solid @postDefaultBackground;
   }
   &.hover {
@@ -73,36 +77,53 @@ body {
       border-left-color: @postActiveBackground;
     }
   }
-  &.empty, &.inactive {
-    opacity: 0.5;
-    &.hover {
-      opacity: 0.75;
-    }
+  &.empty {
+    opacity: 0.6;
   }
 }
 
-.modal {
-  display: block
-  opacity: 0;
-  background: rgba(0, 0, 0, 0.25);
-  transition: opacity 0.25s;
-  .modal-dialog {
-    transition: 0.25s;
-    transform: scale(0, 1);
+.post.cloned {
+  z-index: 100;
+  position: fixed;
+  .post-core, .left-arrow, .right-arrow, .post-extended, .post-proper {
+    transition: @duration;
   }
-
-  &.shown {
-    display: block;
-    opacity: 1;
-
-    .modal-dialog {
-      transform: scale(1, 1);
+  .post-extended {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    padding: 20px;
+  }
+  &.animate-stage1 {
+    .post-core {
+      opacity: 0;
+    }
+    .left-arrow {
+      border-right-width: 0;
+    }
+    .right-arrow {
+      border-left-width: 0;
+    }
+  }
+  &.animate-stage2 {
+    .post-extended {
+      opacity: 1;
     }
   }
 }
 
 iframe {
   visibility: hidden;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 #sidebar {
@@ -113,7 +134,7 @@ iframe {
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 50;
+  z-index: 20;
   box-shadow: -5px 0 5px -5px rgba(0, 0, 0, 0.5);
   color: #01252f;
 }
@@ -136,7 +157,7 @@ iframe {
   cursor: pointer;
 }
 
-#write {
+.write {
   width: 100%;
   padding-top: (@postHeight - (24px + 32px)) / 2;
   text-transform: uppercase;
@@ -175,4 +196,20 @@ iframe {
   position: fixed;
   z-index: 1000;
   display: none;
+}
+
+#shed {
+  z-index: 50;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  display: none;
+  top: 0;
+  background: #000;
+  left: 0;
+  opacity: 0;
+  transition: 2 * @duration;
+  &.shown {
+    opacity: 0.4;
+  }
 }

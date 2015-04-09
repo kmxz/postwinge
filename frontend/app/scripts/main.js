@@ -3,22 +3,31 @@
     'use strict';
 
     var canvas = document.getElementsByClassName('canvas')[0];
-    var write = document.getElementById('write');
+    var write = document.getElementsByClassName('write')[0];
+    var shed = document.getElementById('shed');
 
     var slots = [];
 
     var Slot = function (x, y) {
         this.x = x;
         this.y = y;
-        this.proper = dom.create('div', { className: 'post-proper' });
+        this.core = dom.create('div', { className: 'post-core' });
+        var proper = dom.create('div', { className: 'post-proper' }, this.core);
         this.el = dom.create('div', { className: ['post', 'empty'] }, [
-           dom.create('div', { className: 'left-arrow' }),
-           this.proper,
-           dom.create('div', { className: 'right-arrow' })
+            dom.create('div', { className: 'left-arrow' }),
+            dom.create('div', { className: 'post-proper' }, this.core),
+            dom.create('div', { className: 'right-arrow' })
         ]);
+        this.popoutEl = null;
+        this.popoutCore = null;
+        this.popoutExtended = null;
         this.post = null;
-        this.proper.addEventListener('mouseenter', this.mouseenter.bind(this));
-        this.proper.addEventListener('mouseleave', this.mouseleave.bind(this));
+        this.core.addEventListener('mouseenter', this.mouseenter.bind(this));
+        this.core.addEventListener('mouseleave', this.mouseleave.bind(this));
+        this.core.addEventListener('click', function () {
+            if (this.post) { return; }
+            this.newPost();
+        }.bind(this));
         canvas.appendChild(this.el);
     };
 
@@ -32,7 +41,7 @@
             }
         } else {
             write.style.display = 'block';
-            this.proper.appendChild(write);
+            this.core.appendChild(write);
         }
     };
 
@@ -41,9 +50,112 @@
         write.style.display = 'none';
     };
 
+    Slot.prototype.startEdit = function () {
+        var ta = dom.create('textarea', { placeholder: 'Enter content here...' });
+        var init = function () {
+            dom.create('form', null, dom.create('fieldset', null, [
+                dom.create('legend', null, 'Edit post'),
+                ta
+            ]));
+        };
+    };
+
+    Slot.prototype.newPost = function () {
+        var postId = null;
+        var extendEl = null;
+        api('create', function (id) {
+            postId = id;
+            posts[postId] = new Post();
+            posts[postId].initAsNewPost(this, postId);
+            if (extendEl) {
+                this.startEdit();
+            }
+        }, {
+            'x': this.x,
+            'y': this.y
+        });
+        this.popout(function (extended) {
+            if (postId) {
+                this.startEdit();
+            } else {
+                extendEl = extended;
+                dom.put(extended, dom.create('div', {className: ['alert alert-info']}, 'Please wait...'));
+            }
+        });
+    };
+
+    var postProperWidth = (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val);
+
+    Slot.prototype.setPopoutXToInitial = function (opt_rect) {
+        var rect = opt_rect || this.el.getBoundingClientRect();
+        this.popoutEl.style.left = rect.left + 'px';
+        this.popoutEl.style.width = postProperWidth + 'px';
+    };
+
+    Slot.prototype.setPopoutYToInitial = function (opt_rect) {
+        var rect = opt_rect || this.el.getBoundingClientRect();
+        this.popoutEl.style.top = rect.top / document.documentElement.clientHeight * 100 + '%';
+        this.popoutEl.style.height = rosetta.postHeight.val / document.documentElement.clientHeight * 100 + '%';
+    };
+
+    Slot.prototype.popout = function (callback) {
+        this.popoutEl = this.el.cloneNode(true);
+        this.popoutCore = this.popoutEl.getElementsByClassName('post-core')[0];
+        this.popoutExtended = dom.create('div', { className: 'post-extended' });
+        this.popoutEl.getElementsByClassName('post-proper')[0].appendChild(this.popoutExtended);
+        var rect = this.el.getBoundingClientRect();
+        this.setPopoutXToInitial(rect);
+        this.setPopoutYToInitial(rect);
+        this.popoutEl.classList.add('cloned');
+        this.el.style.visibility = 'hidden'; // yes, we hide it
+        document.body.appendChild(this.popoutEl);
+        shed.style.display = 'block';
+        setTimeout(function () {
+            this.popoutEl.style.transition = rosetta.duration.val + 's';
+            this.popoutEl.style.left = 'calc(50% - ' + rosetta.popRatio.val * postProperWidth / 2 + 'px)';
+            this.popoutEl.style.width = rosetta.popRatio.val * postProperWidth + 'px';
+            this.popoutEl.classList.remove('empty');
+            this.popoutEl.classList.add('animate-stage1');
+            shed.classList.add('shown');
+        }.bind(this), 0);
+        setTimeout(function () {
+            this.popoutEl.style.top = '12.5%';
+            this.popoutEl.style.height = '75%';
+            this.popoutEl.classList.add('animate-stage2');
+            callback(this.popoutExtended);
+        }.bind(this), rosetta.duration.val * 1000);
+        setTimeout(function () {
+            window.popIn = this.popin.bind(this);
+            this.popoutExtended.style.pointerEvents = 'auto';
+        }.bind(this), rosetta.duration.val * 2000);
+    };
+
+    Slot.prototype.popin = function () {
+        this.popoutExtended.style.pointerEvents = 'none';
+        setTimeout(function () {
+            this.setPopoutYToInitial();
+            this.popoutEl.classList.remove('animate-stage2');
+            shed.classList.remove('shown');
+        }.bind(this), 0);
+        setTimeout(function () {
+            this.popoutEl.classList.remove('animate-stage1');
+            this.popoutEl.classList.remove('hover');
+            this.setPopoutXToInitial();
+        }.bind(this), rosetta.duration.val * 1000)
+        setTimeout(function () {
+            shed.style.display = 'none';
+            this.el.style.visibility = 'visible';
+            document.body.removeChild(this.popoutEl);
+            this.popoutEl = null;
+            this.popoutCore = null;
+            this.popoutExtended = null;
+        }.bind(this), rosetta.duration.val * 2000);
+    };
+
     Slot.prototype.getLocationAndSet = function () {
         var left = rosetta.canvasPadding.val;
         left += (this.x * 2 + (this.y & 1)) * (rosetta.postGrossWidth.val - rosetta.postWingWidth.val + rosetta.postMarginX.val);
+        left += rosetta.postWingWidth.val;
         var top = rosetta.canvasPadding.val;
         top += this.y / 2 * (rosetta.postHeight.val + rosetta.postMarginY.val);
         this.el.style.left = left + 'px';
@@ -61,8 +173,7 @@
 
     var smartFont = function (el, content) {
         var fs;
-        dom.clear(el);
-        dom.append(el, content);
+        dom.put(el, content);
         for (fs = 14; fs <= 38; fs++) {
             el.style.fontSize = fs + 'px';
             if (el.scrollHeight > el.offsetHeight) { break; }
@@ -71,30 +182,44 @@
 
     var posts = {};
 
-    var Post = function (json) {
+    var Post = function () {
+        // user MUST call either initAsNewPost or initWithJson
+    };
+
+    Post.prototype.initAsNewPost = function (slot, id) {
+        this.postId = id
+        this.userId = login.getUserId();
+        this.textContent = null;
+        this.display = login.getDisplay();
+        this.datetime = null;
+        this.image = null;
+        this.slot = slot;
+        this.slot.post = this;
+        this.slot.el.classList.remove('empty');
+    };
+
+    Post.prototype.initWithJson = function (json) {
         this.postId = json['post_id'];
         this.userId = json['user_id'];
         this.textContent = json['text_content'];
         this.display = json['display'];
         this.datetime = json['datetime'];
-        this.replyTo = json['reply_to'];
-        this.x = json['x_coord'];
-        this.y = json['y_coord'];
         this.image = json['image'];
-        this.slot = slots[this.y][this.x];
+        this.slot = slots[json['y_coord']][json['x_coord']];
         this.slot.post = this;
         this.slot.el.classList.remove('empty');
     };
 
     Post.prototype.render = function () {
-        smartFont(this.slot.proper, this.textContent);
+        smartFont(this.slot.core, this.textContent);
     };
 
     dom.centerWindow();
 
     api('posts', function (res) {
         res.forEach(function (post) {
-            var postObj = new Post(post);
+            var postObj = new Post();
+            postObj.initWithJson(post);
             posts[post['post_id']] = postObj;
             postObj.render();
         });

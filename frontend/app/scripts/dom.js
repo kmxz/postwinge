@@ -43,7 +43,6 @@ var dom = (function () {
 
     return {
         set: set,
-        append: append,
         getParent: function (node, filter) {
             var cur = node;
             while (cur) {
@@ -62,19 +61,12 @@ var dom = (function () {
             append(element, children);
             return element;
         },
-        clear: function (el) {
+        put: function (el, children) {
             el.innerHTML = '';
+            append(el, children);
         },
         centerWindow: function () {
             window.scrollTo((document.documentElement.scrollWidth - document.documentElement.clientWidth) / 2, (document.documentElement.scrollHeight - document.documentElement.clientHeight) / 2);
-        },
-        cloneToFixed: function (el) {
-            var rect = el.getBoundingClientRect();
-            var nel = el.cloneNode(true);
-            nel.style.position = 'fixed';
-            nel.style.left = rect.left;
-            nel.style.top = rect.top;
-            return nel;
         }
     };
 })();
