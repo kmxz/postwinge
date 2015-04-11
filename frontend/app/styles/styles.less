@@ -1,10 +1,10 @@
 @import "rosetta";
 
-@postProperWidth: @postGrossWidth - 2 * @postWingWidth;
-@canvasGrossWidth: (@postGrossWidth + @postProperWidth + 2 * @postMarginX) * @numOfPostsX - @postMarginX + @postWingWidth + 2 * @canvasPadding;
-@canvasGrossHeight: (@postHeight + @postMarginY) * @numOfPostsY / 2 - @postMarginY / 2 + @postHeight / 2 + 2 * @canvasPadding;
+@postProperWidth: (@postGrossWidth - 2 * @postWingWidth);
+@canvasGrossWidth: ((@postGrossWidth + @postProperWidth + 2 * @postMarginX) * @numOfPostsX - @postMarginX + @postWingWidth + 2 * @canvasPadding);
+@canvasGrossHeight: ((@postHeight + @postMarginY) * @numOfPostsY / 2 - @postMarginY / 2 + @postHeight / 2 + 2 * @canvasPadding);
 
-@postDefaultBackground: rgba(249,249,249,0.6);
+@postDefaultBackground: rgba(249,249,249,0.7);
 @postActiveBackground: rgba(249,249,249,0.85);
 
 html, body {
@@ -41,8 +41,6 @@ body {
     top: 0;
   }
   .left-arrow, .right-arrow {
-    width: 0;
-    height: 0;
     border-top: (@postHeight / 2) solid transparent;
     border-bottom: (@postHeight / 2) solid transparent;
   }
@@ -55,9 +53,19 @@ body {
     background: @postDefaultBackground;
     box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.5), 0 -5px 5px -5px rgba(0, 0, 0, 0.5);
     line-height: 150%;
+    position: relative;
+    .post-bg {
+      width: @postGrossWidth;
+      height: @postHeight;
+      position: absolute;
+      left: calc(50% - (@postGrossWidth / 2));
+      top: 0;
+      background-size: cover;
+    }
     .post-core {
       width: @postProperWidth;
       height: 100%;
+      position: relative;
       margin: auto;
       overflow: hidden;
     }
@@ -97,6 +105,7 @@ body {
     top: 0;
     left: 0;
     padding: 20px;
+    overflow: hidden;
   }
   &.animate-stage1 {
     .post-core {
@@ -157,9 +166,9 @@ iframe {
   cursor: pointer;
 }
 
-.write {
+.write, .edit {
   width: 100%;
-  padding-top: (@postHeight - (24px + 32px)) / 2;
+  padding-top: ((@postHeight - (24px + 32px)) / 2);
   text-transform: uppercase;
   text-align: center;
   display: none;
@@ -208,8 +217,12 @@ iframe {
   background: #000;
   left: 0;
   opacity: 0;
-  transition: 2 * @duration;
+  transition: (2 * @duration);
   &.shown {
     opacity: 0.4;
   }
+}
+
+input[type=file] {
+  display: initial;
 }

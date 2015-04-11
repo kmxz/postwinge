@@ -159,7 +159,8 @@ module.exports = function (grunt) {
     less: {
       options: {
         paths: ['<%= config.app %>/styles'],
-        cleancss: true
+        cleancss: true,
+        strictMath: true
       },
       files: {
         expand: true,

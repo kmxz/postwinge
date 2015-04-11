@@ -31,6 +31,11 @@
             var div = document.createElement('div');
             div.style.cssText = 'width: calc(10px)';
             return !!div.style.length;
+        },
+        'cssGradient': function () {
+            var div = document.createElement('div');
+            div.style.backgroundImage = 'linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))';
+            return div.style.backgroundImage.indexOf('gradient') >= 0;
         }
     };
     var support = true;

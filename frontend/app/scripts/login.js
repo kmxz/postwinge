@@ -15,7 +15,7 @@ var login = (function () {
     var span = userInfo.getElementsByTagName('span')[0];
 
     var initInfo = function () {
-        api('whoami', function (result) {
+        api.request('whoami', function (result) {
             currentUserId = result['user_id'];
             currentDisplay = result['display'];
             dom.put(span, currentDisplay);
@@ -44,7 +44,7 @@ var login = (function () {
 
     return {
         login: function (token) {
-            api('login', function (key) {
+            api.request('login', function (key) {
                 if (key) {
                     localStorage['postwingeSession'] = key;
                     iframe.parentNode.removeChild(iframe);

@@ -1,9 +1,10 @@
-/* global api, dom, login, rosetta */
+/* global api, dom, login, rosetta, thumbcutter */
 (function() {
     'use strict';
 
     var canvas = document.getElementsByClassName('canvas')[0];
-    var write = document.getElementsByClassName('write')[0];
+    var compose = document.getElementsByClassName('write')[0];
+    var edit = document.getElementsByClassName('edit')[0];
     var shed = document.getElementById('shed');
 
     var slots = [];
@@ -12,12 +13,14 @@
         this.x = x;
         this.y = y;
         this.core = dom.create('div', { className: 'post-core' });
+        this.la =  dom.create('div', { className: 'left-arrow' });
+        this.ra =  dom.create('div', { className: 'right-arrow' });
         var proper = dom.create('div', { className: 'post-proper' }, this.core);
         this.el = dom.create('div', { className: ['post', 'empty'] }, [
-            dom.create('div', { className: 'left-arrow' }),
+            this.la, this.ra,
             dom.create('div', { className: 'post-proper' }, this.core),
-            dom.create('div', { className: 'right-arrow' })
         ]);
+        this.postBgEl = null;
         this.popoutEl = null;
         this.popoutCore = null;
         this.popoutExtended = null;
@@ -37,35 +40,72 @@
         this.el.classList.add('hover');
         if (this.post) {
             if (this.post.userId === login.getUserId()) {
-
+                this.core.appendChild(edit);
+                edit.style.display = 'block';
             } else {
-
+                console.log(this.post.userId, login.getUserId());
             }
         } else {
-            write.style.display = 'block';
-            this.core.appendChild(write);
+            this.core.appendChild(compose);
+            compose.style.display = 'block';
         }
     };
 
     Slot.prototype.mouseleave = function () {
         this.el.classList.remove('hover');
-        write.style.display = 'none';
+        compose.style.display = 'none';
+        edit.style.display = 'none';
     };
 
     Slot.prototype.startEdit = function () {
-        var ta = dom.create('textarea', { placeholder: 'Enter content here...' });
+        var ta = dom.create('textarea', { placeholder: 'Enter content here (optional)...', value: this.post.textContent, className: 'form-control' });
+        var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'] }, 'Cancel');
+        var saveBtn = dom.create('button', { className: ['btn', 'btn-primary'] }, 'Save');
+        // do not directly change "busy", use two functions below
+        var busy = false;
+        var setBusy = function () {
+            busy = true;
+            cancelBtn.classList.add('disabled');
+            saveBtn.classList.add('disabled');
+        };
+        var unsetBusy = function () {
+            busy = false;
+            cancelBtn.classList.remove('disabled');
+            saveBtn.classList.remove('disabled');
+        };
         dom.put(this.popoutExtended, dom.create('form', null, dom.create('fieldset', null, [
             dom.create('legend', null, 'Edit post'),
-            ta,
             this.post.createFileUpload(),
-            // TODO: ok and cancel buttons
+            dom.create('div', { className: 'form-group' }, ta),
+            dom.create('div', { className: 'form-group' }, [ cancelBtn, ' ', saveBtn ])
         ])));
+        cancelBtn.addEventListener('click', function () {
+            if (window.confirm('Sure? All changes will be lost if you cancel.')) {
+                this.popin();
+            }
+        }.bind(this));
+        saveBtn.addEventListener('click', function () {
+            if (busy) { return; }
+            var content = ta.value.trim();
+            if (!content.length) { this.popin(); return; }
+            setBusy();
+            api.request('update', function () {
+                this.post.textContent = content;
+                this.post.render(); // re-render the post
+                this.popin();
+            }.bind(this), {
+                'post-id': this.post.postId,
+                'text-content': content
+            }, function () {
+                busy = false;
+            })
+        }.bind(this));
     };
 
     Slot.prototype.newPost = function () {
         var success = false;
         var extendEl = null;
-        api('create', function (id) {
+        api.request('create', function (id) {
             success = true;
             posts[id] = new Post();
             posts[id].initAsNewPost(this, id);
@@ -229,6 +269,16 @@
 
     Post.prototype.render = function () {
         smartFont(this.slot.core, this.textContent);
+        var imageEl;
+        if (this.image) {
+            if (!this.slot.postBgEl) {
+                this.slot.postBgEl = dom.create('div', { className: 'post-bg' });
+            }
+            this.slot.core.parentNode.appendChild(this.slot.postBgEl);
+            thumbCutter(api.image(this.image, true), function (dataUrl) {
+                this.slot.postBgEl.style.backgroundImage = 'url(\'' + dataUrl + '\')';
+            }.bind(this));
+        }
     };
 
     var preventThen = function (realCallback) {
@@ -257,7 +307,7 @@
             'Image uploaded successfully.'
         ]);
         var imgPanel = dom.create('div', { className: ['panel', 'panel-primary'] }, [
-            dom.create('div', { className: 'panel-heading' }, dom.create('h3', { className: 'panel-title' }, 'Add a picture')),
+            dom.create('div', { className: 'panel-heading' }, dom.create('h3', { className: 'panel-title' }, 'Add a picture (optional)')),
             pb1
         ]);
         var setPb = function (pb) {
@@ -269,7 +319,7 @@
                 return;
             }
             setPb(pb3);
-            api('image', function (img) {
+            api.request('image', function (img) {
                 instance.image = img;
                 setPb(pb4);
                 imgPanel.classList.remove('panel-primary');
@@ -305,7 +355,7 @@
 
     dom.centerWindow();
 
-    api('posts', function (res) {
+    api.request('posts', function (res) {
         res.forEach(function (post) {
             var postObj = new Post();
             postObj.initWithJson(post);

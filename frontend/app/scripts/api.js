@@ -3,6 +3,7 @@ var api = (function () {
     'use strict';
 
     var BACKEND_URL = 'http://grad.kmxz.net/php/'; // with trailing slash
+    var IMAGE_URL = 'http://grad.kmxz.net/upload/'; // with trailing slash
 
     var actions = {
         // all revisions of a specific post
@@ -20,65 +21,70 @@ var api = (function () {
         // login
         'login': {method: 'get', url: 'login.php', params: ['token']}
     };
-    return function (api, onsucess, opt_params, opt_onerror) {
-        var config = actions[api];
-        var url = config.url;
-        var onerror = opt_onerror || function () {};
-        var params = opt_params || [];
-        var formData = null;
-        var hasParam = config.params && config.params.length;
-        if (hasParam) {
-            config.params.forEach(function (key) {
-                if (!(params.hasOwnProperty(key))) {
-                    throw 'Parameter ' + key + ' not provided for ' + api + '.';
-                }
-            });
-        }
-        if (config.method === 'post') {
-            if (!localStorage['postwingeSession']) {
-                window.alert('Please login to enjoy this feature.');
-                onerror();
-                return;
-            }
-            formData = new FormData();
-            formData.append('key', localStorage['postwingeSession']);
+    return {
+        request: function (api, onsucess, opt_params, opt_onerror) {
+            var config = actions[api];
+            var url = config.url;
+            var onerror = opt_onerror || function () {};
+            var params = opt_params || [];
+            var formData = null;
+            var hasParam = config.params && config.params.length;
             if (hasParam) {
                 config.params.forEach(function (key) {
-                    formData.append(key, params[key]);
+                    if (!(params.hasOwnProperty(key))) {
+                        throw 'Parameter ' + key + ' not provided for ' + api + '.';
+                    }
                 });
             }
-        } else if (config.method === 'get' && hasParam) {
-            url += '?' + config.params.map(function (key) {
-                return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-            }).join('&');
-        }
-        var xhr = new XMLHttpRequest();
-        xhr.open(config.method, BACKEND_URL + url);
-        xhr.onload = function () {
-            var res;
-            if (xhr.status === 200) {
-                try {
-                    res = JSON.parse(xhr.responseText);
-                } catch (_) {
-                    window.alert('Server response parsing failed! Raw content: ' + xhr.responseText);
+            if (config.method === 'post') {
+                if (!localStorage['postwingeSession']) {
+                    window.alert('Please login to enjoy this feature.');
                     onerror();
                     return;
                 }
-                if (res['success']) {
-                    onsucess(res['data']);
+                formData = new FormData();
+                formData.append('key', localStorage['postwingeSession']);
+                if (hasParam) {
+                    config.params.forEach(function (key) {
+                        formData.append(key, params[key]);
+                    });
+                }
+            } else if (config.method === 'get' && hasParam) {
+                url += '?' + config.params.map(function (key) {
+                    return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+                }).join('&');
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.open(config.method, BACKEND_URL + url);
+            xhr.onload = function () {
+                var res;
+                if (xhr.status === 200) {
+                    try {
+                        res = JSON.parse(xhr.responseText);
+                    } catch (_) {
+                        window.alert('Server response parsing failed! Raw content: ' + xhr.responseText);
+                        onerror();
+                        return;
+                    }
+                    if (res['success']) {
+                        onsucess(res['data']);
+                    } else {
+                        window.alert(res['data']);
+                        onerror();
+                    }
                 } else {
-                    window.alert(res['data']);
+                    window.alert('The server rejected request. Status code: ' + xhr.status + '. Raw content: ' + xhr.responseText);
                     onerror();
                 }
-            } else {
-                window.alert('The server rejected request. Status code: ' + xhr.status + '. Raw content: ' + xhr.responseText);
+            };
+            xhr.onerror = function () {
+                window.alert('Network error!');
                 onerror();
-            }
-        };
-        xhr.onerror = function () {
-            window.alert('Network error!');
-            onerror();
-        };
-        xhr.send(formData);
+            };
+            xhr.send(formData);
+        },
+        image: function (filename, thumb) {
+            return IMAGE_URL + (thumb ? (filename.split('.', 1)[0] + '_thumb' + '.jpg') : filename) + '?FUCK_YOUR_MOTHER_ITSC&' + Math.random();
+        }
     };
 })();

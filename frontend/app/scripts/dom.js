@@ -53,12 +53,14 @@ var dom = (function () {
             }
             return null;
         },
-        create: function (tag, options, children) {
+        create: function (tag, options, opt_children) {
             var element = document.createElement(tag);
             if (options) {
                 set(element, options);
             }
-            append(element, children);
+            if (opt_children) {
+                append(element, opt_children);
+            }
             return element;
         },
         put: function (el, children) {
