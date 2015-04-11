@@ -36,7 +36,8 @@ var api = (function () {
         }
         if (config.method === 'post') {
             if (!localStorage['postwingeSession']) {
-                alert('Please login to enjoy this feature.');
+                window.alert('Please login to enjoy this feature.');
+                onerror();
                 return;
             }
             formData = new FormData();
@@ -61,12 +62,13 @@ var api = (function () {
                 } catch (_) {
                     window.alert('Server response parsing failed! Raw content: ' + xhr.responseText);
                     onerror();
+                    return;
                 }
                 if (res['success']) {
                     onsucess(res['data']);
                 } else {
                     window.alert(res['data']);
-                    onerror(res['data']);
+                    onerror();
                 }
             } else {
                 window.alert('The server rejected request. Status code: ' + xhr.status + '. Raw content: ' + xhr.responseText);

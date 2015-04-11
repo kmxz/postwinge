@@ -21,6 +21,8 @@
         this.popoutEl = null;
         this.popoutCore = null;
         this.popoutExtended = null;
+        this.inAnimation = false;
+        this.popinScheduled = false;
         this.post = null;
         this.core.addEventListener('mouseenter', this.mouseenter.bind(this));
         this.core.addEventListener('mouseleave', this.mouseleave.bind(this));
@@ -52,36 +54,38 @@
 
     Slot.prototype.startEdit = function () {
         var ta = dom.create('textarea', { placeholder: 'Enter content here...' });
-        var init = function () {
-            dom.create('form', null, dom.create('fieldset', null, [
-                dom.create('legend', null, 'Edit post'),
-                ta
-            ]));
-        };
+        dom.put(this.popoutExtended, dom.create('form', null, dom.create('fieldset', null, [
+            dom.create('legend', null, 'Edit post'),
+            ta,
+            this.post.createFileUpload(),
+            // TODO: ok and cancel buttons
+        ])));
     };
 
     Slot.prototype.newPost = function () {
-        var postId = null;
+        var success = false;
         var extendEl = null;
         api('create', function (id) {
-            postId = id;
-            posts[postId] = new Post();
-            posts[postId].initAsNewPost(this, postId);
+            success = true;
+            posts[id] = new Post();
+            posts[id].initAsNewPost(this, id);
             if (extendEl) {
                 this.startEdit();
             }
-        }, {
+        }.bind(this), {
             'x': this.x,
             'y': this.y
-        });
+        }, function () {
+            this.popin();
+        }.bind(this));
         this.popout(function (extended) {
-            if (postId) {
+            if (success) {
                 this.startEdit();
             } else {
                 extendEl = extended;
                 dom.put(extended, dom.create('div', {className: ['alert alert-info']}, 'Please wait...'));
             }
-        });
+        }.bind(this));
     };
 
     var postProperWidth = (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val);
@@ -99,6 +103,8 @@
     };
 
     Slot.prototype.popout = function (callback) {
+        if (this.popoutEl) { return; } // already got one!
+        this.inAnimation = true;
         this.popoutEl = this.el.cloneNode(true);
         this.popoutCore = this.popoutEl.getElementsByClassName('post-core')[0];
         this.popoutExtended = dom.create('div', { className: 'post-extended' });
@@ -127,10 +133,19 @@
         setTimeout(function () {
             window.popIn = this.popin.bind(this);
             this.popoutExtended.style.pointerEvents = 'auto';
+            this.inAnimation = false;
+            if (this.popinScheduled) {
+                this.popin();
+            }
         }.bind(this), rosetta.duration.val * 2000);
     };
 
     Slot.prototype.popin = function () {
+        if (this.inAnimation) {
+            this.popinScheduled = true; // if in popout animation, do popin when finished
+            return;
+        }
+        this.inAnimation = true;
         this.popoutExtended.style.pointerEvents = 'none';
         setTimeout(function () {
             this.setPopoutYToInitial();
@@ -146,6 +161,8 @@
             shed.style.display = 'none';
             this.el.style.visibility = 'visible';
             document.body.removeChild(this.popoutEl);
+            this.inAnimation = false;
+            this.popinScheduled = false;
             this.popoutEl = null;
             this.popoutCore = null;
             this.popoutExtended = null;
@@ -212,6 +229,78 @@
 
     Post.prototype.render = function () {
         smartFont(this.slot.core, this.textContent);
+    };
+
+    var preventThen = function (realCallback) {
+        return function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            realCallback(e);
+        }
+    };
+
+    Post.prototype.createFileUpload = function () {
+        if (this.image) { return; } // don't init if we already have one image
+        var instance = this;
+        var input = dom.create('input', { type: 'file' });
+        var pb1 = dom.create('div', { className: 'panel-body' }, [
+            'Drag your image here directly, or ',
+            input
+        ]);
+        var pb2 = dom.create('div', { className: 'panel-body' }, [
+            'Just release your mouse here...'
+        ]);
+        var pb3 = dom.create('div', { className: 'panel-body' }, [
+            'Your image is being uploaded now, please wait...'
+        ]);
+        var pb4 = dom.create('div', { className: 'panel-body' }, [
+            'Image uploaded successfully.'
+        ]);
+        var imgPanel = dom.create('div', { className: ['panel', 'panel-primary'] }, [
+            dom.create('div', { className: 'panel-heading' }, dom.create('h3', { className: 'panel-title' }, 'Add a picture')),
+            pb1
+        ]);
+        var setPb = function (pb) {
+            imgPanel.replaceChild(pb, imgPanel.lastChild);
+        };
+        var upload = function (file) {
+            if (file.type.split('/', 1)[0] !== 'image') {
+                window.alert('Please upload an image, not other types of file.');
+                return;
+            }
+            setPb(pb3);
+            api('image', function (img) {
+                instance.image = img;
+                setPb(pb4);
+                imgPanel.classList.remove('panel-primary');
+                imgPanel.classList.add('panel-success');
+                instance.render(); // re-render the post
+            }, { 'post_id': instance.postId, 'image': file }, function () {
+                setPb(pb1);
+            });
+        };
+        input.addEventListener('change', function () {
+            if (input.files.length === 1) {
+                upload(input.files[0]);
+            }
+        });
+        imgPanel.addEventListener('dragover', preventThen(function () {
+            if (imgPanel.lastChild !== pb1) { return; }
+            setPb(pb2);
+        }));
+        imgPanel.addEventListener('dragleave', preventThen(function () {
+            if (imgPanel.lastChild !== pb2) { return; }
+            setPb(pb1);
+        }));
+        imgPanel.addEventListener('drop', preventThen(function (e) {
+            if (imgPanel.lastChild !== pb2) { return; }
+            setPb(pb1);
+            if (e.dataTransfer.files.length !== 1) {
+                window.alert('Please add one and only one file!'); return;
+            }
+            upload(e.dataTransfer.files[0]);
+        }));
+        return imgPanel;
     };
 
     dom.centerWindow();
