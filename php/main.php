@@ -5,8 +5,6 @@ date_default_timezone_set('Asia/Hong_Kong');
 $mysqli = new mysqli('localhost', 'grad', 'grad', 'grad');
 $mysqli->set_charset('utf8');
 $mysqli->query('SET time_zone = \'Asia/Hong_Kong\'');
-
-header('Access-Control-Allow-Origin: *'); // debug only! please remove.
 header('Content-Type: application/json');
 
 function panic($reason) {
