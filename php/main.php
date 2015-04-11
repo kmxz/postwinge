@@ -20,7 +20,7 @@ function success($data) {
 function legal_post_id($post_id, $user_id) {
   global $mysqli;
   $id = intval($post_id);
-  $stmt = $mysqli->prepare('SELECT `id` FROM `post_free` WHERE `id` = ? AND `user_id` = ?');
+  $stmt = $mysqli->prepare('SELECT `post_id` FROM `post_free` WHERE `post_id` = ? AND `user_id` = ?');
   $stmt->bind_param('ii', $id, $user_id);
   if (!$stmt->execute()) { panic('SQL Error!'); }
   if (!$stmt->get_result()->fetch_row()) {
