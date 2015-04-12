@@ -2,11 +2,11 @@
 var api = (function () {
     'use strict';
 
-    var SERVER = '//' + window.location.hostname + '/'; // with slash on both ends
-    SERVER = '//grad.kmxz.net/'; // debug OVERRIDE
-    var BACKEND_URL = SERVER + 'php/'; // with trailing slash
-    var IMAGE_URL = SERVER + 'upload/'; // with trailing slash
-    var WEBSOCKET_URL = 'ws://grad.kmxz.net:8080/'; // with trailing slash
+    var SERVER = '//' + window.location.hostname;
+    SERVER = '//grad.kmxz.net'; // debug OVERRIDE
+    var BACKEND_URL = SERVER + '/php/'; // with trailing slash
+    var IMAGE_URL = SERVER + '/upload/'; // with trailing slash
+    var WEBSOCKET_URL = 'ws:' + SERVER + ':8080/'; // with trailing slash
 
     var actions = {
         // all revisions of a specific post

@@ -1,13 +1,13 @@
 // do NOT change any unit in this file
 
 // single post in canvas
-$postGrossWidth = 160px
+$postGrossWidth = 160px // corresponding setting need to be changed manually in thumb.php
 $postWingWidth = 25px
-$postHeight = 80px
+$postHeight = 80px // corresponding setting need to be changed manually in thumb.php
 
 // canvas
-$numOfPostsX = 48
-$numOfPostsY = 128
+$numOfPostsX = 48 // corresponding setting need to be changed manually in create.php
+$numOfPostsY = 96 // corresponding setting need to be changed manually in create.php
 $canvasPadding = 40px
 $postMarginX = 8px
 $postMarginY = 10px

@@ -17,7 +17,7 @@ function legal_pos($x, $y) {
   if ($ix < 0 || $ix >= 48) {
     panic('Illegal X coordinate.');
   }
-  if ($iy < 0 || $iy >= 128) {
+  if ($iy < 0 || $iy >= 96) {
     panic('Illegal Y coordinate.');
   }
   $stmt = mysqli()->prepare('SELECT `post_id` FROM `post_free` WHERE `x_coord` = ? AND `y_coord` = ?');
