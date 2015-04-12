@@ -10,8 +10,6 @@ Running environment:
 - Redis
 - MySQL
   - `grad.sql` for schema
-- Apache web server
-  - `apache2.conf` as sample configuration file
 
 Building tools required:
 - Grunt
