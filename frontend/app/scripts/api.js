@@ -2,8 +2,11 @@
 var api = (function () {
     'use strict';
 
-    var BACKEND_URL = 'http://grad.kmxz.net/php/'; // with trailing slash
-    var IMAGE_URL = 'http://grad.kmxz.net/upload/'; // with trailing slash
+    var SERVER = '//' + window.location.hostname + '/'; // with slash on both ends
+    SERVER = '//grad.kmxz.net/'; // debug OVERRIDE
+    var BACKEND_URL = SERVER + 'php/'; // with trailing slash
+    var IMAGE_URL = SERVER + 'upload/'; // with trailing slash
+    var WEBSOCKET_URL = 'ws://grad.kmxz.net:8080/'; // with trailing slash
 
     var actions = {
         // all revisions of a specific post
@@ -85,6 +88,7 @@ var api = (function () {
         },
         image: function (filename, thumb) {
             return IMAGE_URL + (thumb ? (filename.split('.', 1)[0] + '_thumb' + '.jpg') : filename) + '?FUCK_YOUR_MOTHER_ITSC&' + Math.random();
-        }
+        },
+        websockets: WEBSOCKET_URL
     };
 })();

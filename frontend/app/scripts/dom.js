@@ -64,7 +64,9 @@ var dom = (function () {
             return element;
         },
         put: function (el, children) {
-            el.innerHTML = '';
+            while (el.lastChild) {
+                el.removeChild(el.lastChild);
+            }
             append(el, children);
         },
         centerWindow: function () {
