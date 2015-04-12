@@ -29,7 +29,7 @@ function image_upload($field_name) {
   if (!$gdimage) {
     panic('The image might be corrupted as it cannot be read.');
   }
-  imagepng(thumb($gdimage), UPLOAD_DIR . $md5 . '_thumb.png', 9);
+  imagejpeg(thumb($gdimage), UPLOAD_DIR . $md5 . '_thumb.jpg', 80);
   move_uploaded_file($_FILES[$field_name]['tmp_name'], $target_filepath);
   return $target_filename;
 }
