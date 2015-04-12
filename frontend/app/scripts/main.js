@@ -8,6 +8,7 @@
     var shed = document.getElementById('shed');
 
     var slots = [];
+    var posts = {};
 
     var Slot = function (x, y) {
         this.x = x;
@@ -34,7 +35,7 @@
     Slot.prototype.click = function () {
         if (this.post) {
             if (this.post.userId === login.getUserId()) {
-                this.popout(this.startEdit.bind(this));
+                this.popout(this.post.startEdit.bind(this.post));
             }
         } else {
             this.newPost();
@@ -62,59 +63,14 @@
         edit.style.display = 'none';
     };
 
-    Slot.prototype.startEdit = function () {
-        var ta = dom.create('textarea', { placeholder: 'Enter content here (optional)...', className: 'form-control' }, this.post.textContent);
-        var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Cancel');
-        var saveBtn = dom.create('button', { className: ['btn', 'btn-primary'], type: 'button' }, 'Save');
-        // do not directly change "busy", use two functions below
-        var busy = false;
-        var setBusy = function () {
-            busy = true;
-            cancelBtn.classList.add('disabled');
-            saveBtn.classList.add('disabled');
-        };
-        var unsetBusy = function () {
-            busy = false;
-            cancelBtn.classList.remove('disabled');
-            saveBtn.classList.remove('disabled');
-        };
-        dom.put(this.popoutExtended, dom.create('form', null, dom.create('fieldset', null, [
-            dom.create('legend', null, 'Edit post'),
-            this.post.createFileUpload(),
-            dom.create('div', { className: 'form-group' }, ta),
-            dom.create('div', { className: 'form-group' }, [ cancelBtn, ' ', saveBtn ])
-        ])));
-        cancelBtn.addEventListener('click', function () {
-            if (window.confirm('Sure? All changes will be lost if you cancel.')) {
-                this.popin();
-            }
-        }.bind(this));
-        saveBtn.addEventListener('click', function () {
-            if (busy) { return; }
-            var content = ta.value.trim();
-            if (!content.length) { this.popin(); return; }
-            setBusy();
-            api.request('update', function (id) {
-                this.post.revisionId = id;
-                this.post.textContent = content;
-                this.post.render(); // re-render the post
-                this.popin();
-            }.bind(this), {
-                'post_id': this.post.postId,
-                'text_content': content
-            }, unsetBusy);
-        }.bind(this));
-    };
-
     Slot.prototype.newPost = function () {
         var success = false;
         var extended = false;
-        api.request('create', function (id) {
+        api.request('create', function (data) {
             success = true;
-            posts[id] = new Post();
-            posts[id].initAsNewPost(this, id);
+            notificationHandlers.fromSelf('create', data);
             if (extended) {
-                this.startEdit();
+                this.post.startEdit();
             }
         }.bind(this), {
             'x': this.x,
@@ -124,7 +80,7 @@
         }.bind(this));
         this.popout(function () {
             if (success) {
-                this.startEdit();
+                this.post.startEdit();
             } else {
                 extended = true;
                 dom.put(this.popoutExtended, dom.create('div', {className: ['alert alert-primary']}, 'Please wait...'));
@@ -200,7 +156,6 @@
             this.el.classList.remove('hover');
             this.popoutDummy.classList.remove('hover')
             this.setPopoutXToInitial(rect);
-            console.log(this.popoutExtended);
             this.popoutExtended.parentNode.removeChild(this.popoutExtended);
         }.bind(this), rosetta.duration.val * 1000);
         setTimeout(function () {
@@ -276,25 +231,7 @@
         var p = dom.create('div', { className: 'image-text' }, content);
     };
 
-    var posts = {};
-
-    var Post = function () {
-        // user MUST call either initAsNewPost or initWithJson
-    };
-
-    Post.prototype.initAsNewPost = function (slot, id) {
-        this.postId = id;
-        this.userId = login.getUserId();
-        this.textContent = null;
-        this.display = login.getDisplay();
-        this.datetime = null;
-        this.image = null;
-        this.slot = slot;
-        this.slot.post = this;
-        this.slot.el.classList.remove('empty');
-    };
-
-    Post.prototype.initWithJson = function (json) {
+    var Post = function (json) {
         this.postId = json['post_id'];
         this.userId = json['user_id'];
         this.textContent = json['text_content'];
@@ -303,12 +240,13 @@
         this.datetime = json['datetime'];
         this.image = json['image'];
         this.slot = slots[json['y_coord']][json['x_coord']];
-        this.slot.post = this;
         this.slot.el.classList.remove('empty');
+        posts[json['post_id']] = this;
+        this.slot.post = this;
     };
 
     Post.prototype.render = function () {
-        this.slot.core.style.display = 'initial';
+        this.slot.core.style.display = 'block';
         if (this.image) {
             if (!this.slot.postBgEl) {
                 this.slot.postBgEl = dom.create('div', { className: 'post-bg' });
@@ -368,12 +306,11 @@
                 return;
             }
             setPb(pb3);
-            api.request('image', function (img) {
-                instance.image = img;
+            api.request('image', function (data) {
                 setPb(pb4);
                 imgPanel.classList.remove('panel-primary');
                 imgPanel.classList.add('panel-success');
-                instance.render(); // re-render the post
+                notificationHandlers.fromSelf('image', data);
             }, { 'post_id': instance.postId, 'image': file }, function () {
                 setPb(pb1);
             });
@@ -402,15 +339,132 @@
         return imgPanel;
     };
 
+    Post.prototype.startEdit = function () {
+        var ta = dom.create('textarea', { placeholder: 'Enter content here (optional)...', className: 'form-control' }, this.textContent);
+        var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Cancel');
+        var saveBtn = dom.create('button', { className: ['btn', 'btn-primary'], type: 'button' }, 'Save');
+        // do not directly change "busy", use two functions below
+        var busy = false;
+        var setBusy = function () {
+            busy = true;
+            cancelBtn.classList.add('disabled');
+            saveBtn.classList.add('disabled');
+        };
+        var unsetBusy = function () {
+            busy = false;
+            cancelBtn.classList.remove('disabled');
+            saveBtn.classList.remove('disabled');
+        };
+        dom.put(this.slot.popoutExtended, dom.create('form', null, dom.create('fieldset', null, [
+            dom.create('legend', null, 'Edit post'),
+            this.createFileUpload(),
+            dom.create('div', { className: 'form-group' }, ta),
+            dom.create('div', { className: 'form-group' }, [ cancelBtn, ' ', saveBtn ])
+        ])));
+        cancelBtn.addEventListener('click', function () {
+            if (window.confirm('Sure? All changes will be lost if you cancel.')) {
+                this.slot.popin();
+            }
+        }.bind(this));
+        saveBtn.addEventListener('click', function () {
+            if (busy) { return; }
+            var content = ta.value.trim();
+            if (!content.length) { this.slot.popin(); return; }
+            setBusy();
+            api.request('update', function (data) {
+                notificationHandlers.fromSelf('update', data);
+                this.slot.popin();
+            }.bind(this), {
+                'post_id': this.postId,
+                'text_content': content
+            }, unsetBusy);
+        }.bind(this));
+    };
+
     dom.centerWindow();
+
+    var notificationHandlers = (function () {
+        var excerpt = function (str) {
+            return (str && str.length) ? (str.length <= 10 ? str : (str.substring(0, 8) + '...')) : 'a post';
+        };
+        var handlers = {
+            'create': {
+                render: function (data, user_id, display) {
+                    var slot = slots[data['y_coord']][data['x_coord']];
+                    if (slot.post) { // already one
+                        return;
+                    }
+                    new Post({
+                        'post_id': data['post_id'],
+                        'user_id': user_id,
+                        'display': display,
+                        'datetime': null,
+                        'image': null,
+                        'revision_id': null,
+                        'text_content': null,
+                        'x_coord': data['x_coord'],
+                        'y_coord': data['y_coord']
+                    });
+                },
+                message: function (data) {
+                    var span = dom.create('span', { className: 'postname' } , 'empty post');
+                    return ['has created an ', span, '.'];
+                }
+            },
+            'update': {
+                render: function (data) {
+                    var post = posts[data['post_id']];
+                    if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
+                    if (data['revision_id'] <= post.revisionId) { return; } // don't worry, null will be treated as 0 in comparison
+                    post.revisionId = data['revision_id'];
+                    post.datetime = data['datetime'];
+                    post.textContent = data['text_content'];
+                    post.render();
+                },
+                message: function (data) {
+                    var span = dom.create('span', { className: 'postname' }, excerpt(data['text_content']));
+                    return ['has modified the post ', span, '.'];
+                }
+            },
+            'image': {
+                render: function (data) {
+                    var post = posts[data['post_id']];
+                    if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
+                    post.image = data['image'];
+                    post.render();
+                },
+                message: function (data) {
+                    var post = posts[data['post_id']];
+                    var span = dom.create('span', { className: 'postname' }, excerpt(post.textContent));
+                    return ['has upload a picture to ', span];
+                }
+            }
+        };
+        var ul = document.getElementById('activities');
+        return {
+            fromNotification: function (item) {
+                handlers[item['type']].render(item['data'], item['user_id'], item['display']);
+                ul.insertBefore(dom.create('li', null, [
+                    dom.create('span', { className: 'date' }, ''),
+                    ' ',
+                    dom.create('span', { className: 'name' }, item['display']),
+                    ' '
+                ].concat(handlers[item['type']].message(item['data']))), ul.firstChild);
+            },
+            fromSelf: function (type, json) {
+                handlers[type].render(json, login.getUserId(), login.getDisplay());
+            }
+        }
+    })();
 
     api.request('posts', function (res) {
         res.forEach(function (post) {
-            var postObj = new Post();
-            postObj.initWithJson(post);
-            posts[post['post_id']] = postObj;
-            postObj.render();
+            new Post(post).render();
         });
         canvas.classList.add('loaded');
+        var ws = new WebSocket(api.websockets);
+        ws.onmessage = function (data) {
+            data.forEach(notificationHandlers.fromNotification);
+        };
     });
 })();
