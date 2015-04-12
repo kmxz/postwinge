@@ -3,10 +3,11 @@
 // caution: this service should NOT be stopped as the results will be kept in memory w/o any persistence. nor will Redis keep a persisted record of messages.
 // inspired by http://www.technology-ebay.de/the-teams/mobile-de/blog/connecting-php-and-node-with-redis-pub-sub-and-sockjs.html
 
+var fs = require('fs');
 var redis = require('redis').createClient();
 var WebSocketServer = require('ws').Server;
 
-var logFile = fs.createWriteStream('node.log', { flags: 'a' });
+var logFile = fs.createWriteStream(__dirname + '/../log/node.log', { flags: 'a' });
 
 var log = function (content) {
   logFile.write(content + '\n');

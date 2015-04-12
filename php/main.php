@@ -11,10 +11,9 @@ function mysqli($close = FALSE) {
       $mysqli->close();
     }
   } else if (!$mysqli) {
-      $mysqli = new mysqli('localhost', 'grad', 'grad', 'grad');
-      $mysqli->set_charset('utf8');
-      $mysqli->query('SET time_zone = \'Asia/Hong_Kong\'');
-    }
+    $mysqli = new mysqli('localhost', 'grad', 'grad', 'grad');
+    $mysqli->set_charset('utf8');
+    $mysqli->query('SET time_zone = \'Asia/Hong_Kong\'');
   }
   return $mysqli;
 }
@@ -43,9 +42,8 @@ function success($data) {
 }
 
 function legal_post_id($post_id, $user_id) {
-  global $mysqli;
   $id = intval($post_id);
-  $stmt = $mysqli->prepare('SELECT `post_id` FROM `post_free` WHERE `post_id` = ? AND `user_id` = ?');
+  $stmt = mysqli()->prepare('SELECT `post_id` FROM `post_free` WHERE `post_id` = ? AND `user_id` = ?');
   $stmt->bind_param('ii', $id, $user_id);
   if (!$stmt->execute()) { panic('SQL Error!'); }
   if (!$stmt->get_result()->fetch_row()) {
@@ -64,13 +62,13 @@ function get_display($user_id) {
 }
 
 function success_with_redis_publish($type, $data, $user_id) {
-  redis()->publish('updates', array(
+  redis()->publish('updates', json_encode(array(
     'type' => $type,
     'time' => time(),
     'data' => $data,
     'user_id' => $user_id,
     'display' => get_display($user_id)
-  ));
+  )));
   success($data);
 }
 
