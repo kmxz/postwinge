@@ -94,7 +94,8 @@
             var content = ta.value.trim();
             if (!content.length) { this.popin(); return; }
             setBusy();
-            api.request('update', function () {
+            api.request('update', function (id) {
+                this.post.revisionId = id;
                 this.post.textContent = content;
                 this.post.render(); // re-render the post
                 this.popin();
@@ -297,6 +298,7 @@
         this.postId = json['post_id'];
         this.userId = json['user_id'];
         this.textContent = json['text_content'];
+        this.revisionId = json['revision_id'];
         this.display = json['display'];
         this.datetime = json['datetime'];
         this.image = json['image'];

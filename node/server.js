@@ -6,6 +6,13 @@
 var redis = require('redis').createClient();
 var WebSocketServer = require('ws').Server;
 
+var logFile = fs.createWriteStream('node.log', { flags: 'a' });
+
+var log = function (content) {
+  logFile.write(content + '\n');
+  console.log(content);
+};
+
 var messages = [];
 var wss = new WebSocketServer({ port: 8080 });
 
@@ -14,7 +21,8 @@ wss.on('connection', function (ws) {
 });
 
 redis.subscribe('updates');
-redis.on('message', function(channel, data) {
+redis.on('message', function (channel, data) {
+  log(data);
   messages.push(data);
   if (messages.length > 20) {
     messages.shift();
