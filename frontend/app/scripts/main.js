@@ -385,7 +385,23 @@
 
     var notificationHandlers = (function () {
         var excerpt = function (str) {
-            return (str && str.length) ? (str.length <= 10 ? str : (str.substring(0, 8) + '...')) : 'a post';
+            return (str && str.length) ? (str.length <= 12 ? str : (str.substring(0, 10) + '...')) : 'a post';
+        };
+        var getDay = function (date) {
+            return Math.floor((date.getTime()  - date.getTimezoneOffset() * 60 * 1000) / (24 * 60 * 60 * 1000));
+        };
+        var zeroPad2 = function (num) {
+            var str = num.toString();
+            return (str.length === 1) ? ('0' + num) : str;
+        };
+        var readableTime = function (ts) {
+            var date = new Date(ts * 1000);
+            var now = new Date();
+            if (getDay(date) === getDay(now)) {
+                return zeroPad2(date.getMonth() + 1) + '-' + zeroPad2(date.getDay());
+            } else {
+                return zeroPad2(date.getMinutes()) + ':' + zeroPad2(date.getMinutes());
+            }
         };
         var handlers = {
             'create': {
@@ -445,7 +461,7 @@
             fromNotification: function (item) {
                 handlers[item['type']].render(item['data'], item['user_id'], item['display']);
                 ul.insertBefore(dom.create('li', null, [
-                    dom.create('span', { className: 'date' }, ''),
+                    dom.create('span', { className: 'date' }, readableTime(item['time'])),
                     ' ',
                     dom.create('span', { className: 'name' }, item['display']),
                     ' '
@@ -463,8 +479,8 @@
         });
         canvas.classList.add('loaded');
         var ws = new WebSocket(api.websockets);
-        ws.onmessage = function (data) {
-            data.forEach(notificationHandlers.fromNotification);
+        ws.onmessage = function (ev) {
+            JSON.parse(ev.data).forEach(notificationHandlers.fromNotification);
         };
     });
 })();

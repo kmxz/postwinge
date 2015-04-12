@@ -6,7 +6,7 @@ var api = (function () {
     SERVER = '//grad.kmxz.net/'; // debug OVERRIDE
     var BACKEND_URL = SERVER + 'php/'; // with trailing slash
     var IMAGE_URL = SERVER + 'upload/'; // with trailing slash
-    var WEBSOCKET_URL = 'ws:' + SERVER + 'websockets/'; // with trailing slash
+    var WEBSOCKET_URL = 'ws://grad.kmxz.net:8080/'; // with trailing slash
 
     var actions = {
         // all revisions of a specific post
