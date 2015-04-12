@@ -9,7 +9,12 @@ if (isset($_POST['key'])) {
   $result = $stmt->get_result()->fetch_row();
   if ($result) {
     $user_id = $result[0];
+  } else {
+    panic('Please log in first!');
   }
 }
+
+$redis = new Redis();
+$redis->pconnect('127.0.0.1');
 
 ?>

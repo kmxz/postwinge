@@ -1,5 +1,5 @@
 /* exported thumbCutter */
-/* globl dom, rosetta */
+/* global dom, rosetta */
 var thumbCutter = (function () {
     'use strict';
 
@@ -27,7 +27,6 @@ var thumbCutter = (function () {
         var img = new Image();
         img.crossOrigin = 'Anonymous'; // FIXME for debug only
         img.addEventListener('load', function () {
-            console.log(img);
             ctx.clearRect(0, 0, rosetta.postGrossWidth.val * AA_RATIO, rosetta.postHeight.val * AA_RATIO);
             ctx.drawImage(img, 0, 0);
             ctx.fillRect(0, 0, rosetta.postGrossWidth.val * AA_RATIO, rosetta.postHeight.val * AA_RATIO);

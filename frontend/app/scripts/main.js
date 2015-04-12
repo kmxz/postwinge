@@ -1,4 +1,4 @@
-/* global api, dom, login, rosetta, thumbcutter */
+/* global api, dom, login, rosetta, thumbCutter */
 (function() {
     'use strict';
 
@@ -15,25 +15,30 @@
         this.core = dom.create('div', { className: 'post-core' });
         this.la =  dom.create('div', { className: 'left-arrow' });
         this.ra =  dom.create('div', { className: 'right-arrow' });
-        var proper = dom.create('div', { className: 'post-proper' }, this.core);
         this.el = dom.create('div', { className: ['post', 'empty'] }, [
             this.la, this.ra,
             dom.create('div', { className: 'post-proper' }, this.core),
         ]);
         this.postBgEl = null;
-        this.popoutEl = null;
-        this.popoutCore = null;
+        this.popoutDummy = null;
         this.popoutExtended = null;
         this.inAnimation = false;
         this.popinScheduled = false;
         this.post = null;
         this.core.addEventListener('mouseenter', this.mouseenter.bind(this));
         this.core.addEventListener('mouseleave', this.mouseleave.bind(this));
-        this.core.addEventListener('click', function () {
-            if (this.post) { return; }
-            this.newPost();
-        }.bind(this));
+        this.core.addEventListener('click', this.click.bind(this));
         canvas.appendChild(this.el);
+    };
+
+    Slot.prototype.click = function () {
+        if (this.post) {
+            if (this.post.userId === login.getUserId()) {
+                this.popout(this.startEdit.bind(this));
+            }
+        } else {
+            this.newPost();
+        }
     };
 
     Slot.prototype.mouseenter = function () {
@@ -58,9 +63,9 @@
     };
 
     Slot.prototype.startEdit = function () {
-        var ta = dom.create('textarea', { placeholder: 'Enter content here (optional)...', value: this.post.textContent, className: 'form-control' });
-        var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'] }, 'Cancel');
-        var saveBtn = dom.create('button', { className: ['btn', 'btn-primary'] }, 'Save');
+        var ta = dom.create('textarea', { placeholder: 'Enter content here (optional)...', className: 'form-control' }, this.post.textContent);
+        var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Cancel');
+        var saveBtn = dom.create('button', { className: ['btn', 'btn-primary'], type: 'button' }, 'Save');
         // do not directly change "busy", use two functions below
         var busy = false;
         var setBusy = function () {
@@ -94,22 +99,20 @@
                 this.post.render(); // re-render the post
                 this.popin();
             }.bind(this), {
-                'post-id': this.post.postId,
-                'text-content': content
-            }, function () {
-                busy = false;
-            })
+                'post_id': this.post.postId,
+                'text_content': content
+            }, unsetBusy);
         }.bind(this));
     };
 
     Slot.prototype.newPost = function () {
         var success = false;
-        var extendEl = null;
+        var extended = false;
         api.request('create', function (id) {
             success = true;
             posts[id] = new Post();
             posts[id].initAsNewPost(this, id);
-            if (extendEl) {
+            if (extended) {
                 this.startEdit();
             }
         }.bind(this), {
@@ -118,57 +121,55 @@
         }, function () {
             this.popin();
         }.bind(this));
-        this.popout(function (extended) {
+        this.popout(function () {
             if (success) {
                 this.startEdit();
             } else {
-                extendEl = extended;
-                dom.put(extended, dom.create('div', {className: ['alert alert-info']}, 'Please wait...'));
+                extended = true;
+                dom.put(this.popoutExtended, dom.create('div', {className: ['alert alert-primary']}, 'Please wait...'));
             }
         }.bind(this));
     };
 
     var postProperWidth = (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val);
 
-    Slot.prototype.setPopoutXToInitial = function (opt_rect) {
-        var rect = opt_rect || this.el.getBoundingClientRect();
-        this.popoutEl.style.left = rect.left + 'px';
-        this.popoutEl.style.width = postProperWidth + 'px';
+    Slot.prototype.setPopoutXToInitial = function (rect) {
+        this.el.style.left = rect.left + 'px';
+        this.el.style.width = postProperWidth + 'px';
     };
 
-    Slot.prototype.setPopoutYToInitial = function (opt_rect) {
-        var rect = opt_rect || this.el.getBoundingClientRect();
-        this.popoutEl.style.top = rect.top / document.documentElement.clientHeight * 100 + '%';
-        this.popoutEl.style.height = rosetta.postHeight.val / document.documentElement.clientHeight * 100 + '%';
+    Slot.prototype.setPopoutYToInitial = function (rect) {
+        this.el.style.top = rect.top / document.documentElement.clientHeight * 100 + '%';
+        this.el.style.height = rosetta.postHeight.val / document.documentElement.clientHeight * 100 + '%';
     };
 
     Slot.prototype.popout = function (callback) {
-        if (this.popoutEl) { return; } // already got one!
+        if (this.popoutDummy) { return; } // already got one!
         this.inAnimation = true;
-        this.popoutEl = this.el.cloneNode(true);
-        this.popoutCore = this.popoutEl.getElementsByClassName('post-core')[0];
+        this.popoutDummy = this.el.cloneNode(false);
+        canvas.replaceChild(this.popoutDummy, this.el);
         this.popoutExtended = dom.create('div', { className: 'post-extended' });
-        this.popoutEl.getElementsByClassName('post-proper')[0].appendChild(this.popoutExtended);
-        var rect = this.el.getBoundingClientRect();
+        this.core.parentNode.appendChild(this.popoutExtended);
+        var rect = this.popoutDummy.getBoundingClientRect();
         this.setPopoutXToInitial(rect);
         this.setPopoutYToInitial(rect);
-        this.popoutEl.classList.add('cloned');
-        this.el.style.visibility = 'hidden'; // yes, we hide it
-        document.body.appendChild(this.popoutEl);
+        this.el.classList.add('cloned');
+        this.popoutDummy.style.visibility = 'hidden'; // yes, we hide it
+        document.body.appendChild(this.el);
         shed.style.display = 'block';
         setTimeout(function () {
-            this.popoutEl.style.transition = rosetta.duration.val + 's';
-            this.popoutEl.style.left = 'calc(50% - ' + rosetta.popRatio.val * postProperWidth / 2 + 'px)';
-            this.popoutEl.style.width = rosetta.popRatio.val * postProperWidth + 'px';
-            this.popoutEl.classList.remove('empty');
-            this.popoutEl.classList.add('animate-stage1');
+            this.el.style.transition = rosetta.duration.val + 's';
+            this.el.style.left = 'calc(50% - ' + rosetta.popRatio.val * postProperWidth / 2 + 'px)';
+            this.el.style.width = rosetta.popRatio.val * postProperWidth + 'px';
+            this.el.classList.remove('empty');
+            this.el.classList.add('animate-stage1');
             shed.classList.add('shown');
         }.bind(this), 0);
         setTimeout(function () {
-            this.popoutEl.style.top = '12.5%';
-            this.popoutEl.style.height = '75%';
-            this.popoutEl.classList.add('animate-stage2');
-            callback(this.popoutExtended);
+            this.el.style.top = '12.5%';
+            this.el.style.height = '75%';
+            this.el.classList.add('animate-stage2');
+            callback();
         }.bind(this), rosetta.duration.val * 1000);
         setTimeout(function () {
             window.popIn = this.popin.bind(this);
@@ -187,24 +188,29 @@
         }
         this.inAnimation = true;
         this.popoutExtended.style.pointerEvents = 'none';
+        var rect = this.popoutDummy.getBoundingClientRect();
         setTimeout(function () {
-            this.setPopoutYToInitial();
-            this.popoutEl.classList.remove('animate-stage2');
+            this.el.classList.remove('animate-stage2');
             shed.classList.remove('shown');
+            this.setPopoutYToInitial(rect);
         }.bind(this), 0);
         setTimeout(function () {
-            this.popoutEl.classList.remove('animate-stage1');
-            this.popoutEl.classList.remove('hover');
-            this.setPopoutXToInitial();
-        }.bind(this), rosetta.duration.val * 1000)
+            this.el.classList.remove('animate-stage1');
+            this.el.classList.remove('hover');
+            this.popoutDummy.classList.remove('hover')
+            this.setPopoutXToInitial(rect);
+            console.log(this.popoutExtended);
+            this.popoutExtended.parentNode.removeChild(this.popoutExtended);
+        }.bind(this), rosetta.duration.val * 1000);
         setTimeout(function () {
             shed.style.display = 'none';
-            this.el.style.visibility = 'visible';
-            document.body.removeChild(this.popoutEl);
+            this.popoutDummy.style.visibility = 'visible';
+            dom.put(this.popoutDummy, Array.prototype.slice.call(this.el.childNodes));
+            document.body.removeChild(this.el);
+            this.el = this.popoutDummy;
+            this.popoutDummy = null;
             this.inAnimation = false;
             this.popinScheduled = false;
-            this.popoutEl = null;
-            this.popoutCore = null;
             this.popoutExtended = null;
         }.bind(this), rosetta.duration.val * 2000);
     };
@@ -228,13 +234,45 @@
         }
     }
 
-    var smartFont = function (el, content) {
-        var fs;
-        dom.put(el, content);
-        for (fs = 14; fs <= 38; fs++) {
-            el.style.fontSize = fs + 'px';
-            if (el.scrollHeight > el.offsetHeight) { break; }
+    // binary search for maximum integer that satisfies an requirement, and call testFn for one last time using that number
+    // lower: current maximum integer known to satisfy
+    // upper: current minimum integer known NOT to satisfy
+    // testFn: test function that returns true when satisfy
+    var findMaximumAndSet = function (lower, upper, testFn) {
+        var toTest;
+        var l = lower, u = upper; // just for good practice, not changing parameters
+        while (l + 1 < u) { // for performance reason, do not use recursion
+            toTest = Math.floor((l + u) / 2);
+            if (testFn(toTest)) {
+                l = toTest;
+            } else {
+                u = toTest;
+            }
         }
+        testFn(l);
+        return l;
+    };
+
+    var smartFont = function (el, content) {
+        var p = dom.create('div', { className: 'text-content' }, content);
+        var legal = function () { return el.scrollHeight <= rosetta.postHeight.val; }
+        dom.put(el, p);
+        var fs = findMaximumAndSet(13, 40, function (t) {
+            p.style.fontSize = t + 'px';
+            return legal();
+        });
+        if (fs > 13) {
+            p.style.textAlign = 'center';
+            return;
+        }
+        findMaximumAndSet(1, content.length, function (t) {
+            dom.put(p, content.substring(0, t) + '...');
+            return legal();
+        });
+    };
+
+    var imageText = function (el, content) {
+        var p = dom.create('div', { className: 'image-text' }, content);
     };
 
     var posts = {};
@@ -244,7 +282,7 @@
     };
 
     Post.prototype.initAsNewPost = function (slot, id) {
-        this.postId = id
+        this.postId = id;
         this.userId = login.getUserId();
         this.textContent = null;
         this.display = login.getDisplay();
@@ -268,16 +306,25 @@
     };
 
     Post.prototype.render = function () {
-        smartFont(this.slot.core, this.textContent);
-        var imageEl;
+        this.slot.core.style.display = 'initial';
         if (this.image) {
             if (!this.slot.postBgEl) {
                 this.slot.postBgEl = dom.create('div', { className: 'post-bg' });
             }
-            this.slot.core.parentNode.appendChild(this.slot.postBgEl);
+            this.slot.core.parentNode.insertBefore(this.slot.postBgEl, this.slot.core);
             thumbCutter(api.image(this.image, true), function (dataUrl) {
                 this.slot.postBgEl.style.backgroundImage = 'url(\'' + dataUrl + '\')';
             }.bind(this));
+            if (this.textContent && this.textContent.length) {
+                imageText(this.slot.core, this.textContent);
+            }
+        } else {
+            if (this.textContent && this.textContent.length) {
+                this.slot.core.style.display = 'table';
+                smartFont(this.slot.core, this.textContent);
+            } else {
+                dom.put(this.slot.core, null);
+            }
         }
     };
 
@@ -286,7 +333,7 @@
             e.stopPropagation();
             e.preventDefault();
             realCallback(e);
-        }
+        };
     };
 
     Post.prototype.createFileUpload = function () {

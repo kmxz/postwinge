@@ -15,7 +15,7 @@ var api = (function () {
         // upload an image
         'image': {method: 'post', url: 'image.php', params: ['post_id', 'image']},
         // update a post
-        'update': {method: 'post', url: 'create.php', params: ['post_id', 'text_content']},
+        'update': {method: 'post', url: 'update.php', params: ['post_id', 'text_content']},
         // whoami
         'whoami': {method: 'post', url: 'whoami.php'},
         // login

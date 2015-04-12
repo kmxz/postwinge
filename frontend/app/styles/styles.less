@@ -52,7 +52,6 @@ body {
     width: 100%;
     background: @postDefaultBackground;
     box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.5), 0 -5px 5px -5px rgba(0, 0, 0, 0.5);
-    line-height: 150%;
     position: relative;
     .post-bg {
       width: @postGrossWidth;
@@ -64,10 +63,17 @@ body {
     }
     .post-core {
       width: @postProperWidth;
-      height: 100%;
+      height: @postHeight;
       position: relative;
       margin: auto;
-      overflow: hidden;
+      .text-content {
+        width: @postProperWidth;
+        overflow-x: hidden;
+        display: table-cell;
+        line-height: 150%;
+        vertical-align: middle;
+        word-break: break-all;
+      }
     }
   }
   .right-arrow {
@@ -93,7 +99,7 @@ body {
 .post.cloned {
   z-index: 100;
   position: fixed;
-  .post-core, .left-arrow, .right-arrow, .post-extended, .post-proper {
+  .post-core, .left-arrow, .right-arrow, .post-extended, .post-proper, .post-bg {
     transition: @duration;
   }
   .post-extended {
@@ -108,7 +114,7 @@ body {
     overflow: hidden;
   }
   &.animate-stage1 {
-    .post-core {
+    .post-core, .post-bg {
       opacity: 0;
     }
     .left-arrow {
@@ -173,6 +179,10 @@ iframe {
   text-align: center;
   display: none;
   cursor: pointer;
+  font-size: 13px;
+  position: absolute;
+  left: 0;
+  top: 0;
   .icon {
     width: 32px;
     height: 32px;

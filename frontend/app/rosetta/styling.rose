@@ -1,3 +1,5 @@
+// do NOT change any unit in this file
+
 // single post in canvas
 $postGrossWidth = 160px
 $postWingWidth = 25px
