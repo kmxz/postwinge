@@ -7,14 +7,22 @@ var fs = require('fs');
 var redis = require('redis').createClient();
 var WebSocketServer = require('ws').Server;
 
-var logFile = fs.createWriteStream(__dirname + '/../log/node.log', { flags: 'a' });
+var logFile = __dirname + '/../log/node.log';
+var logStream = fs.createWriteStream(logFile, { flags: 'a', encoding: 'utf8' });
 
 var log = function (content) {
-  logFile.write(content + '\n');
+  logStream.write(content + '\n');
   console.log(content);
 };
 
 var messages = [];
+try {
+  messages = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; }).slice(-20).map(function (line) { return JSON.parse(line); });
+  console.log(messages.length + ' previous entries imported from log.');
+} catch (e) {
+  console.log('No previous log imported.');
+}
+
 var wss = new WebSocketServer({ port: 8080 });
 
 wss.on('connection', function (ws) {
@@ -24,7 +32,7 @@ wss.on('connection', function (ws) {
 redis.subscribe('updates');
 redis.on('message', function (channel, data) {
   log(data);
-  messages.push(data);
+  messages.push(JSON.parse(data));
   if (messages.length > 20) {
     messages.shift();
   }
