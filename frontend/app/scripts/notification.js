@@ -30,15 +30,15 @@ var notification = (function () {
         setHandlers: function (handlers) {
             currentHandlers = handlers;
         },
-        startWebsockets: function () {
-            var ws = new WebSocket(api.websockets);
+        startWebsockets: function (path) {
+            var ws = new WebSocket(api.websockets + path);
             ws.onmessage = function (ev) {
                 JSON.parse(ev.data).forEach(function (item) {
                     currentHandlers[item['type']].render(item['data'], item['user_id'], item['display']);
                     ul.insertBefore(dom.create('li', null, [
                         dom.create('span', { className: 'date' }, readableTime(item['time'])),
                         ' ',
-                        dom.create('span', { className: 'name' }, item['display']),
+                        item['display'] ? dom.create('span', { className: 'name' }, item['display']) : 'Anonymous user',
                         ' '
                     ].concat(currentHandlers[item['type']].message(item['data']))), ul.firstChild);
                 });

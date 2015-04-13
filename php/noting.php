@@ -31,12 +31,12 @@ $stmt->bind_param('i', $note_id);
 if (!$stmt->execute()) { panic('SQL Error!'); }
 $row = $stmt->get_result()->fetch_row();
 if (!$row) { panic('SQL Error!'); }
-success_with_redis_publish('noting', array(
+success_with_redis_publish('create', array(
   'note_id' => $note_id,
   'text_content' => $content,
   'image' => $image,
   'datetime' => $row[0],
   'target_id' => $target_id
-), $anonymous ? 0 : $user_id);
+), $anonymous ? 0 : $user_id, 'note');
 
 ?>

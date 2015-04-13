@@ -64,8 +64,8 @@ function get_display($user_id) {
   return $result[0];
 }
 
-function success_with_redis_publish($type, $data, $user_id) {
-  redis()->publish('updates', json_encode(array(
+function success_with_redis_publish($type, $data, $user_id, $channel_prefix = 'post') {
+  redis()->publish($channel_prefix . '_updates', json_encode(array(
     'type' => $type,
     'time' => time(),
     'data' => $data,

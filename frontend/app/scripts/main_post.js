@@ -463,6 +463,6 @@ var mainPost = function() {
             new Post(post).render();
         });
         canvas.classList.add('loaded');
-        notification.startWebsockets();
+        notification.startWebsockets('post');
     });
 };

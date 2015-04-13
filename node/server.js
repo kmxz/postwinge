@@ -7,37 +7,39 @@ var fs = require('fs');
 var redis = require('redis').createClient();
 var WebSocketServer = require('ws').Server;
 
-var logFile = __dirname + '/../log/node.log';
-var logStream = fs.createWriteStream(logFile, { flags: 'a', encoding: 'utf8' });
+var start = function (type) {
+  var logFile = __dirname + '/../log/node_' + type + '.log';
+  var logStream = fs.createWriteStream(logFile, { flags: 'a', encoding: 'utf8' });
 
-var log = function (content) {
-  logStream.write(content + '\n');
-  console.log(content);
-};
+  var log = function (content) {
+    logStream.write(content + '\n');
+    console.log(content);
+  };
 
-var messages = [];
-try {
-  messages = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; }).slice(-20).map(function (line) { return JSON.parse(line); });
-  console.log(messages.length + ' previous entries imported from log.');
-} catch (e) {
-  console.log('No previous log imported.');
-}
-
-var wss = new WebSocketServer({ port: 8080 });
-
-wss.on('connection', function (ws) {
-  ws.send(JSON.stringify(messages));
-});
-
-redis.subscribe('updates');
-redis.on('message', function (channel, data) {
-  log(data);
-  var parsed = JSON.parse(data);
-  messages.push(parsed);
-  if (messages.length > 20) {
-    messages.shift();
+  var messages = [];
+  try {
+    messages = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; }).slice(-20).map(function (line) { return JSON.parse(line); });
+    console.log(type + ':' + messages.length + ' previous entries imported from log.');
+  } catch (e) {
+    console.log(type + ':' + 'No previous log imported.');
   }
-  wss.clients.forEach(function (client) {
-    client.send(JSON.stringify([parsed]));
+
+  var wss = new WebSocketServer({ port: 8080, path: '/' + type });
+
+  wss.on('connection', function (ws) {
+    ws.send(JSON.stringify(messages));
   });
-});
+
+  redis.subscribe(type + '_updates');
+  redis.on('message', function (channel, data) {
+    log(data);
+    var parsed = JSON.parse(data);
+    messages.push(parsed);
+    if (messages.length > 20) {
+      messages.shift();
+    }
+    wss.clients.forEach(function (client) {
+      client.send(JSON.stringify([parsed]));
+    });
+  });
+};
