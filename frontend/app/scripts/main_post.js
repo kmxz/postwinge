@@ -493,7 +493,7 @@ var mainPost = function() {
                 post.render();
             },
             message: function (data) {
-                return ['uploaded a picture.'];
+                return ['uploaded ', createPostnameSpan(data, 'a picture'), ''];
             }
         }
     });
