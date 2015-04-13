@@ -1,4 +1,10 @@
-A naive copy of Postiles for 2015 cohort of graduates.
+当我第一次知道要改改 Postiles / 今年毕业用的时候 / 其实我是 是拒绝的
+
+我跟老大讲 我拒绝 / 因为其实我根本写不来 Ruby
+
+老大跟我讲 重新写一个 / 页面很黑 很亮 很 024d61
+
+写了一个星期 PHP 之后呢 / 页面 DUANG～
 
 Running environment:
 - PHP >= 5.3
