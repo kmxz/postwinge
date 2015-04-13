@@ -32,11 +32,12 @@ wss.on('connection', function (ws) {
 redis.subscribe('updates');
 redis.on('message', function (channel, data) {
   log(data);
-  messages.push(JSON.parse(data));
+  var parsed = JSON.parse(data);
+  messages.push(parsed);
   if (messages.length > 20) {
     messages.shift();
   }
   wss.clients.forEach(function (client) {
-    client.send([data]);
+    client.send(JSON.stringify([parsed]));
   });
 });
