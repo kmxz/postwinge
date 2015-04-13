@@ -36,11 +36,7 @@ var mainPost = function() {
 
     Slot.prototype.click = function () {
         if (this.post) {
-            if (this.post.userId === login.getUserId()) {
-                this.popout(this.post.startEdit.bind(this.post));
-            } else {
-                this.popout(this.post.renderFull.bind(this.post));
-            }
+            this.popout(this.post.renderFull.bind(this.post));
         } else {
             this.newPost();
         }
@@ -48,14 +44,7 @@ var mainPost = function() {
 
     Slot.prototype.mouseenter = function () {
         this.el.classList.add('hover');
-        if (this.post) {
-            if (this.post.userId === login.getUserId()) {
-                this.core.parentNode.appendChild(edit);
-                edit.style.display = 'block';
-            } else {
-                // TODO
-            }
-        } else {
+        if (!this.post) {
             this.core.parentNode.appendChild(edit);
             edit.style.display = 'block';
         }
@@ -420,6 +409,18 @@ var mainPost = function() {
         closeBtn.addEventListener('click', function () {
             this.slot.popin();
         }.bind(this));
+        var editBtn = null;
+        if (this.userId === login.getUserId()) {
+            editBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Edit');
+            editBtn.addEventListener('click', this.startEdit.bind(this));
+        }
+        var imgEl = null;
+        if (this.image) {
+            imgEl = dom.create('img', { className: 'content-img', src: api.image(this.image) });
+            imgEl.addEventListener('click', function () {
+                window.open(api.image(this.image));
+            }.bind(this));
+        }
         dom.put(this.slot.popoutExtended, dom.create('form', null, dom.create('fieldset', null, [
             dom.create('legend', null, 'Post details'),
             dom.create('div', { className: ['panel', 'panel-default'] }, dom.create('div', { className: 'panel-body' }, [
@@ -428,8 +429,9 @@ var mainPost = function() {
                 ' on ',
                 this.datetime
             ])),
+            imgEl,
             dom.create('div', null, dom.nl2p(this.textContent)),
-            dom.create('div', { className: 'bottom-btns' }, [ closeBtn ])
+            dom.create('div', { className: 'bottom-btns' }, editBtn ? [ editBtn, ' ', closeBtn ] : closeBtn)
         ])));
     };
 
@@ -467,9 +469,7 @@ var mainPost = function() {
                     'y_coord': data['y_coord']
                 });
             },
-            message: function (data) {
-                return ['has created an ', createPostnameSpan(data, 'empty post'), '.'];
-            }
+            message: false
         },
         'update': {
             render: function (data) {
@@ -482,7 +482,7 @@ var mainPost = function() {
                 post.render();
             },
             message: function (data) {
-                return ['has modified the post ', createPostnameSpan(data, excerpt(data['text_content'])), '.'];
+                return [': ', createPostnameSpan(data, excerpt(data['text_content'])), '.'];
             }
         },
         'image': {
@@ -493,8 +493,7 @@ var mainPost = function() {
                 post.render();
             },
             message: function (data) {
-                var post = posts[data['post_id']];
-                return ['has upload a picture to ', createPostnameSpan(data, excerpt(post.textContent)), '.'];
+                return ['uploaded a picture.'];
             }
         }
     });

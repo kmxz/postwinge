@@ -104,6 +104,7 @@ var dom = (function () {
             window.requestAnimationFrame(anim);
         },
         nl2p: function (str) {
+            if (!str) { return null; }
             return str.split(/\r\n|\r|\n/).map(function (s) {
                 var p = document.createElement('p');
                 append(p, s);

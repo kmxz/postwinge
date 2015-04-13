@@ -35,12 +35,13 @@ var notification = (function () {
             ws.onmessage = function (ev) {
                 JSON.parse(ev.data).forEach(function (item) {
                     currentHandlers[item['type']].render(item['data'], item['user_id'], item['display']);
+                    var msg = currentHandlers[item['type']].message;
                     ul.insertBefore(dom.create('li', null, [
                         dom.create('span', { className: 'date' }, readableTime(item['time'])),
                         ' ',
                         item['display'] ? dom.create('span', { className: 'name' }, item['display']) : 'Anonymous user',
                         ' '
-                    ].concat(currentHandlers[item['type']].message(item['data']))), ul.firstChild);
+                    ].concat(msg ? msg(item['data']): [])), ul.firstChild);
                 });
             };
         },
