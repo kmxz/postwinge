@@ -4,8 +4,8 @@
 @canvasGrossWidth: ((@postGrossWidth + @postProperWidth + 2 * @postMarginX) * @numOfPostsX - @postMarginX + @postWingWidth + 2 * @canvasPadding);
 @canvasGrossHeight: ((@postHeight + @postMarginY) * @numOfPostsY / 2 - @postMarginY / 2 + @postHeight / 2 + 2 * @canvasPadding);
 
-@postDefaultBackground: rgba(249,249,249,0.7);
-@postActiveBackground: rgba(249,249,249,0.85);
+@postDefaultBackground: rgba(249,249,249,0.6);
+@postActiveBackground: rgba(249,249,249,0.8);
 
 html, body {
   margin: 0;
@@ -16,6 +16,19 @@ body {
   background-image: url(../images/bg.jpg);
   background-size: cover;
   background-attachment: fixed;
+}
+
+textarea.form-control {
+  resize: none;
+  font-size: 13px;
+  height: 100px;
+}
+
+.doppelganger {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
 }
 
 #canvas-post, #canvas-note {
@@ -30,7 +43,7 @@ body {
   height: @canvasGrossHeight;
   position: relative;
   display: none;
-  z-index: 10;
+  z-index: 15;
   opacity: 0;
   user-select: none;
   &.loaded {
@@ -81,6 +94,16 @@ body {
         line-height: 150%;
         vertical-align: middle;
         word-break: break-all;
+        color: #333333;
+      }
+      .image-text {
+        color: #141414;
+        position: absolute;
+        bottom: 0;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: @postProperWidth;
+        overflow: hidden;
       }
     }
   }
@@ -107,22 +130,26 @@ body {
 .post.cloned {
   z-index: 100;
   position: fixed;
-  .post-core, .left-arrow, .right-arrow, .post-extended, .post-proper, .post-bg {
+  .post-core, .left-arrow, .right-arrow, .post-extended, .post-proper, .post-bg, .edit {
     transition: @duration;
   }
   .post-extended {
-    position: absolute;
     width: 100%;
     height: 100%;
     opacity: 0;
     pointer-events: none;
-    top: 0;
-    left: 0;
-    padding: 20px;
-    overflow: hidden;
+    margin-top: -@postHeight;
+    padding: 20px 20px 56px 20px;
+    overflow: auto;
+    .bottom-btns {
+      text-align: center;
+      position: absolute;
+      width: calc(100% - 40px);
+      bottom: 20px;
+    }
   }
   &.animate-stage1 {
-    .post-core, .post-bg {
+    .post-core, .post-bg, .edit {
       opacity: 0;
     }
     .left-arrow {
@@ -147,6 +174,10 @@ iframe {
   position: fixed;
   top: 0;
   left: 0;
+}
+
+.name, .postname {
+  color: #01252f;
 }
 
 #sidebar {
@@ -180,24 +211,14 @@ iframe {
   cursor: pointer;
 }
 
-.write, .edit {
+.edit {
   width: 100%;
-  padding-top: ((@postHeight - (24px + 32px)) / 2);
-  text-transform: uppercase;
-  text-align: center;
-  display: none;
-  cursor: pointer;
-  font-size: 13px;
+  height: 100%;
   position: absolute;
   left: 0;
   top: 0;
-  .icon {
-    width: 32px;
-    height: 32px;
-    background: url(../images/write.png);
-    opacity: 0.6;
-    margin: 0 auto;
-  }
+  background: url(../images/write.png) center center no-repeat;
+  pointer-events: none;
 }
 
 #activities {
@@ -208,9 +229,6 @@ iframe {
     .date {
       display: inline-block;
       width: 40px;
-    }
-    .name, .postname {
-      color: #01252f;
     }
     .postname {
       cursor: pointer;
