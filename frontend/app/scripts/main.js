@@ -181,6 +181,12 @@
         this.el.style.top = top + 'px';
     };
 
+    Slot.prototype.scrollToCenterOfScreen = function () {
+        var left = parseInt(this.el.style.left);
+        var top = parseInt(this.el.style.top);
+        dom.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2);
+    };
+
     var i, j;
     for (i = 0; i < rosetta.numOfPostsY.val; i++) {
         slots[i] = [];
@@ -397,11 +403,19 @@
         var readableTime = function (ts) {
             var date = new Date(ts * 1000);
             var now = new Date();
-            if (getDay(date) === getDay(now)) {
-                return zeroPad2(date.getMonth() + 1) + '-' + zeroPad2(date.getDay());
+            if (getDay(date) !== getDay(now)) {
+                return zeroPad2(date.getMonth() + 1) + '-' + zeroPad2(date.getDate());
             } else {
-                return zeroPad2(date.getMinutes()) + ':' + zeroPad2(date.getMinutes());
+                return zeroPad2(date.getHours()) + ':' + zeroPad2(date.getMinutes());
             }
+        };
+        var createPostnameSpan = function (data, content) {
+            var span = dom.create('span', { className: 'postname' } , content);
+            var id = data['post_id'];
+            span.addEventListener('click', function () {
+                posts[id].slot.scrollToCenterOfScreen();
+            });
+            return span;
         };
         var handlers = {
             'create': {
@@ -423,8 +437,7 @@
                     });
                 },
                 message: function (data) {
-                    var span = dom.create('span', { className: 'postname' } , 'empty post');
-                    return ['has created an ', span, '.'];
+                    return ['has created an ', createPostnameSpan(data, 'empty post'), '.'];
                 }
             },
             'update': {
@@ -438,8 +451,7 @@
                     post.render();
                 },
                 message: function (data) {
-                    var span = dom.create('span', { className: 'postname' }, excerpt(data['text_content']));
-                    return ['has modified the post ', span, '.'];
+                    return ['has modified the post ', createPostnameSpan(data, excerpt(data['text_content'])), '.'];
                 }
             },
             'image': {
@@ -451,8 +463,7 @@
                 },
                 message: function (data) {
                     var post = posts[data['post_id']];
-                    var span = dom.create('span', { className: 'postname' }, excerpt(post.textContent));
-                    return ['has upload a picture to ', span];
+                    return ['has upload a picture to ', createPostnameSpan(data, excerpt(post.textContent)), '.'];
                 }
             }
         };

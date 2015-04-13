@@ -36,6 +36,9 @@
             var div = document.createElement('div');
             div.style.backgroundImage = 'linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))';
             return div.style.backgroundImage.indexOf('gradient') >= 0;
+        },
+        'animationFrame': function () {
+            return !!window.requestAnimationFrame;
         }
     };
     var support = true;
