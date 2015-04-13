@@ -23,7 +23,7 @@ types.forEach(function (type) {
   messages[type] = [];
   try {
     messages[type] = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; }).slice(-20).map(function (line) { return JSON.parse(line); });
-    console.log(type + ': ' + messages.length + ' previous entries imported from log.');
+    console.log(type + ': ' + messages[type].length + ' previous entries imported from log.');
   } catch (e) {
     console.log(type + ': ' + 'No previous log imported.');
   }
@@ -37,13 +37,13 @@ var wss = new WebSocketServer({ port: 8080, verifyClient: function (info, cb) {
 }});
 
 wss.on('connection', function (ws) {
-  ws.send(JSON.stringify(messages));
+  ws.send(JSON.stringify(messages[ws.upgradeReq.channel]));
 });
 
 redis.on('message', function (channel, data) {
   log[channel](data);
   var parsed = JSON.parse(data);
-  messages.push(parsed);
+  messages[channel].push(parsed);
   if (messages.length > 20) {
     messages.shift();
   }
