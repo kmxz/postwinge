@@ -21,6 +21,8 @@ var api = (function () {
         'image': {method: 'post', url: 'image.php', params: ['post_id', 'image']},
         // update a post
         'update': {method: 'post', url: 'update.php', params: ['post_id', 'text_content']},
+        // create a new note
+        'noting': {method: 'post', url: 'noting.php', params: ['target_id', 'text_content', 'image', 'anonymous']},
         // whoami
         'whoami': {method: 'post', url: 'whoami.php'},
         // login

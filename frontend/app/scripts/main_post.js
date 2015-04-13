@@ -4,7 +4,6 @@ var mainPost = function() {
     'use strict';
 
     var canvas = document.getElementById('canvas-post');
-    var compose = document.getElementsByClassName('write')[0];
     var edit = document.getElementsByClassName('edit')[0];
     var shed = document.getElementById('shed');
 
@@ -39,6 +38,8 @@ var mainPost = function() {
         if (this.post) {
             if (this.post.userId === login.getUserId()) {
                 this.popout(this.post.startEdit.bind(this.post));
+            } else {
+                this.popout(this.post.renderFull.bind(this.post));
             }
         } else {
             this.newPost();
@@ -49,20 +50,20 @@ var mainPost = function() {
         this.el.classList.add('hover');
         if (this.post) {
             if (this.post.userId === login.getUserId()) {
-                this.core.appendChild(edit);
+                this.core.parentNode.appendChild(edit);
                 edit.style.display = 'block';
             } else {
-                console.log(this.post.userId, login.getUserId());
+                // TODO
             }
         } else {
-            this.core.appendChild(compose);
-            compose.style.display = 'block';
+            this.core.parentNode.appendChild(edit);
+            edit.style.display = 'block';
         }
     };
 
     Slot.prototype.mouseleave = function () {
+        if (this.popoutDummy) { return; } // keep hover style! will auto remove when popin
         this.el.classList.remove('hover');
-        compose.style.display = 'none';
         edit.style.display = 'none';
     };
 
@@ -121,7 +122,7 @@ var mainPost = function() {
             this.el.style.transition = rosetta.duration.val + 's';
             this.el.style.left = 'calc(50% - ' + rosetta.popRatio.val * postProperWidth / 2 + 'px)';
             this.el.style.width = rosetta.popRatio.val * postProperWidth + 'px';
-            this.el.classList.remove('empty');
+            this.el.classList.remove('empty'); // just popped out one
             this.el.classList.add('animate-stage1');
             shed.classList.add('shown');
         }.bind(this), 0);
@@ -129,6 +130,7 @@ var mainPost = function() {
             this.el.style.top = '12.5%';
             this.el.style.height = '75%';
             this.el.classList.add('animate-stage2');
+            edit.style.display = 'none';
             callback();
         }.bind(this), rosetta.duration.val * 1000);
         setTimeout(function () {
@@ -238,6 +240,7 @@ var mainPost = function() {
 
     var imageText = function (el, content) {
         var p = dom.create('div', { className: 'image-text' }, content);
+        dom.put(el, p);
     };
 
     var Post = function (json) {
@@ -250,12 +253,14 @@ var mainPost = function() {
         this.image = json['image'];
         this.slot = slots[json['y_coord']][json['x_coord']];
         this.slot.el.classList.remove('empty');
+        if (this.slot.popoutDummy) {
+            this.slot.popoutDummy.classList.remove('empty');
+        }
         posts[json['post_id']] = this;
         this.slot.post = this;
     };
 
     Post.prototype.render = function () {
-        console.log('renderred');
         this.slot.core.style.display = 'block';
         if (this.image) {
             if (!this.slot.postBgEl) {
@@ -349,6 +354,25 @@ var mainPost = function() {
         return imgPanel;
     };
 
+    var autoResize = (function () {
+        var doppelganger = null;
+        return function (ta) {
+            if (doppelganger) { document.body.removeChild(doppelganger); }
+            doppelganger = ta.cloneNode(true);
+            doppelganger.classList.add('doppelganger');
+            doppelganger.style.width = ta.offsetWidth + 'px';
+            document.body.appendChild(doppelganger);
+            var resize = function () {
+                dom.put(doppelganger, ta.value);
+                doppelganger.style.height = 100 + 'px';
+                ta.style.height = doppelganger.scrollHeight + 'px';
+            };
+            ta.addEventListener('keydown', resize);
+            ta.addEventListener('keyup', resize);
+            ta.addEventListener('change', resize);
+        };
+    })();
+
     Post.prototype.startEdit = function () {
         var ta = dom.create('textarea', { placeholder: 'Enter content here (optional)...', className: 'form-control' }, this.textContent);
         var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Cancel');
@@ -365,12 +389,11 @@ var mainPost = function() {
             cancelBtn.classList.remove('disabled');
             saveBtn.classList.remove('disabled');
         };
-        dom.put(this.slot.popoutExtended, dom.create('form', null, dom.create('fieldset', null, [
+        dom.put(this.slot.popoutExtended, [dom.create('form', null, dom.create('fieldset', null, [
             dom.create('legend', null, 'Edit post'),
             this.createFileUpload(),
             dom.create('div', { className: 'form-group' }, ta),
-            dom.create('div', { className: 'form-group' }, [ cancelBtn, ' ', saveBtn ])
-        ])));
+        ])), dom.create('div', { className: 'bottom-btns' }, [ cancelBtn, ' ', saveBtn ])]);
         cancelBtn.addEventListener('click', function () {
             if (window.confirm('Sure? All changes will be lost if you cancel.')) {
                 this.slot.popin();
@@ -389,10 +412,28 @@ var mainPost = function() {
                 'text_content': content
             }, unsetBusy);
         }.bind(this));
+        autoResize(ta);
+    };
+
+    Post.prototype.renderFull = function () {
+        var closeBtn = dom.create('button', { className: ['btn', 'btn-primary'], type: 'button' }, 'Close');
+        closeBtn.addEventListener('click', function () {
+            this.slot.popin();
+        }.bind(this));
+        dom.put(this.slot.popoutExtended, dom.create('form', null, dom.create('fieldset', null, [
+            dom.create('legend', null, 'Post details'),
+            dom.create('div', { className: ['panel', 'panel-default'] }, dom.create('div', { className: 'panel-body' }, [
+                'This post is published by ',
+                dom.create('span', { className: 'name' }, this.display),
+                ' on ',
+                this.datetime
+            ])),
+            dom.create('div', null, dom.nl2p(this.textContent)),
+            dom.create('div', { className: 'bottom-btns' }, [ closeBtn ])
+        ])));
     };
 
     dom.centerWindow();
-
 
     var excerpt = function (str) {
         return (str && str.length) ? (str.length <= 12 ? str : (str.substring(0, 10) + '...')) : 'a post';
