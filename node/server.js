@@ -6,40 +6,52 @@
 var fs = require('fs');
 var redis = require('redis').createClient();
 var WebSocketServer = require('ws').Server;
+var url = require('url');
 
-var start = function (type) {
+var types = ['post', 'note'];
+
+var log = {};
+var messages = {};
+
+types.forEach(function (type) {
   var logFile = __dirname + '/../log/node_' + type + '.log';
   var logStream = fs.createWriteStream(logFile, { flags: 'a', encoding: 'utf8' });
-
-  var log = function (content) {
+  log[type] = function (content) {
     logStream.write(content + '\n');
     console.log(content);
   };
-
-  var messages = [];
+  messages[type] = [];
   try {
-    messages = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; }).slice(-20).map(function (line) { return JSON.parse(line); });
-    console.log(type + ':' + messages.length + ' previous entries imported from log.');
+    messages[type] = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; }).slice(-20).map(function (line) { return JSON.parse(line); });
+    console.log(type + ': ' + messages.length + ' previous entries imported from log.');
   } catch (e) {
-    console.log(type + ':' + 'No previous log imported.');
+    console.log(type + ': ' + 'No previous log imported.');
   }
+  redis.subscribe(type);
+});
 
-  var wss = new WebSocketServer({ port: 8080, path: '/' + type });
+var wss = new WebSocketServer({ port: 8080, verifyClient: function (info, cb) {
+  var u = url.parse(info.req.url);
+  info.req.channel = u.pathname.split('/')[1];
+  cb(u && (types.indexOf(info.req.channel) >= 0));
+}});
 
-  wss.on('connection', function (ws) {
-    ws.send(JSON.stringify(messages));
+wss.on('connection', function (ws) {
+  ws.send(JSON.stringify(messages));
+});
+
+redis.on('message', function (channel, data) {
+  log[channel](data);
+  var parsed = JSON.parse(data);
+  messages.push(parsed);
+  if (messages.length > 20) {
+    messages.shift();
+  }
+  var legal = wss.clients.filter(function (client) {
+    return client.upgradeReq.channel === channel;
   });
-
-  redis.subscribe(type + '_updates');
-  redis.on('message', function (channel, data) {
-    log(data);
-    var parsed = JSON.parse(data);
-    messages.push(parsed);
-    if (messages.length > 20) {
-      messages.shift();
-    }
-    wss.clients.forEach(function (client) {
-      client.send(JSON.stringify([parsed]));
-    });
+  legal.forEach(function (client) {
+    client.send(JSON.stringify([parsed]));
   });
-};
+  console.log('forwarded to ' + legal.length + 'clients!');
+});
