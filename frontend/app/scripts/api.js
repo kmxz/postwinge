@@ -12,7 +12,9 @@ var api = (function () {
         // all revisions of a specific post
         'revisions': {method: 'get', url: 'list.php', params: ['post_id']},
         // all free posts
-        'posts': {method: 'get', url: 'list.php'},
+        'posts': {method: 'get', url: 'list_post.php'},
+        // all notes
+        'notes': {method: 'get', url: 'list_note.php'},
         // create a new post
         'create': {method: 'post', url: 'create.php', params: ['x', 'y']},
         // upload an image

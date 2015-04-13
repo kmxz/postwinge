@@ -18,10 +18,18 @@ body {
   background-attachment: fixed;
 }
 
-.canvas {
+#canvas-post, #canvas-note {
+  display: none;
+  z-index: 10;
+  opacity: 0;
+  user-select: none;
+}
+
+#canvas-post {
   width: @canvasGrossWidth;
   height: @canvasGrossHeight;
   position: relative;
+  display: none;
   z-index: 10;
   opacity: 0;
   user-select: none;

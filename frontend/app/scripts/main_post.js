@@ -1,11 +1,14 @@
-/* global api, dom, login, rosetta, thumbCutter */
-(function() {
+/* exported mainPost */
+/* global api, dom, login, nontification, rosetta, thumbCutter */
+var mainPost = function() {
     'use strict';
 
-    var canvas = document.getElementsByClassName('canvas')[0];
+    var canvas = document.getElementById('canvas-post');
     var compose = document.getElementsByClassName('write')[0];
     var edit = document.getElementsByClassName('edit')[0];
     var shed = document.getElementById('shed');
+
+    canvas.style.display = 'block';
 
     var slots = [];
     var posts = {};
@@ -68,7 +71,7 @@
         var extended = false;
         api.request('create', function (data) {
             success = true;
-            notificationHandlers.fromSelf('create', data);
+            notification.fromSelf('create', data);
             if (extended) {
                 this.post.startEdit();
             }
@@ -252,6 +255,7 @@
     };
 
     Post.prototype.render = function () {
+        console.log('renderred');
         this.slot.core.style.display = 'block';
         if (this.image) {
             if (!this.slot.postBgEl) {
@@ -316,7 +320,7 @@
                 setPb(pb4);
                 imgPanel.classList.remove('panel-primary');
                 imgPanel.classList.add('panel-success');
-                notificationHandlers.fromSelf('image', data);
+                notification.fromSelf('image', data);
             }, { 'post_id': instance.postId, 'image': file }, function () {
                 setPb(pb1);
             });
@@ -378,7 +382,7 @@
             if (!content.length) { this.slot.popin(); return; }
             setBusy();
             api.request('update', function (data) {
-                notificationHandlers.fromSelf('update', data);
+                notification.fromSelf('update', data);
                 this.slot.popin();
             }.bind(this), {
                 'post_id': this.postId,
@@ -389,109 +393,76 @@
 
     dom.centerWindow();
 
-    var notificationHandlers = (function () {
-        var excerpt = function (str) {
-            return (str && str.length) ? (str.length <= 12 ? str : (str.substring(0, 10) + '...')) : 'a post';
-        };
-        var getDay = function (date) {
-            return Math.floor((date.getTime()  - date.getTimezoneOffset() * 60 * 1000) / (24 * 60 * 60 * 1000));
-        };
-        var zeroPad2 = function (num) {
-            var str = num.toString();
-            return (str.length === 1) ? ('0' + num) : str;
-        };
-        var readableTime = function (ts) {
-            var date = new Date(ts * 1000);
-            var now = new Date();
-            if (getDay(date) !== getDay(now)) {
-                return zeroPad2(date.getMonth() + 1) + '-' + zeroPad2(date.getDate());
-            } else {
-                return zeroPad2(date.getHours()) + ':' + zeroPad2(date.getMinutes());
+
+    var excerpt = function (str) {
+        return (str && str.length) ? (str.length <= 12 ? str : (str.substring(0, 10) + '...')) : 'a post';
+    };
+
+    var createPostnameSpan = function (data, content) {
+        var span = dom.create('span', { className: 'postname' } , content);
+        var id = data['post_id'];
+        span.addEventListener('click', function () {
+            posts[id].slot.scrollToCenterOfScreen();
+        });
+        return span;
+    };
+
+    notification.setHandlers({
+        'create': {
+            render: function (data, user_id, display) {
+                var slot = slots[data['y_coord']][data['x_coord']];
+                if (slot.post) { // already one
+                    return;
+                }
+                new Post({
+                    'post_id': data['post_id'],
+                    'user_id': user_id,
+                    'display': display,
+                    'datetime': null,
+                    'image': null,
+                    'revision_id': null,
+                    'text_content': null,
+                    'x_coord': data['x_coord'],
+                    'y_coord': data['y_coord']
+                });
+            },
+            message: function (data) {
+                return ['has created an ', createPostnameSpan(data, 'empty post'), '.'];
             }
-        };
-        var createPostnameSpan = function (data, content) {
-            var span = dom.create('span', { className: 'postname' } , content);
-            var id = data['post_id'];
-            span.addEventListener('click', function () {
-                posts[id].slot.scrollToCenterOfScreen();
-            });
-            return span;
-        };
-        var handlers = {
-            'create': {
-                render: function (data, user_id, display) {
-                    var slot = slots[data['y_coord']][data['x_coord']];
-                    if (slot.post) { // already one
-                        return;
-                    }
-                    new Post({
-                        'post_id': data['post_id'],
-                        'user_id': user_id,
-                        'display': display,
-                        'datetime': null,
-                        'image': null,
-                        'revision_id': null,
-                        'text_content': null,
-                        'x_coord': data['x_coord'],
-                        'y_coord': data['y_coord']
-                    });
-                },
-                message: function (data) {
-                    return ['has created an ', createPostnameSpan(data, 'empty post'), '.'];
-                }
+        },
+        'update': {
+            render: function (data) {
+                var post = posts[data['post_id']];
+                if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
+                if (data['revision_id'] <= post.revisionId) { return; } // don't worry, null will be treated as 0 in comparison
+                post.revisionId = data['revision_id'];
+                post.datetime = data['datetime'];
+                post.textContent = data['text_content'];
+                post.render();
             },
-            'update': {
-                render: function (data) {
-                    var post = posts[data['post_id']];
-                    if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
-                    if (data['revision_id'] <= post.revisionId) { return; } // don't worry, null will be treated as 0 in comparison
-                    post.revisionId = data['revision_id'];
-                    post.datetime = data['datetime'];
-                    post.textContent = data['text_content'];
-                    post.render();
-                },
-                message: function (data) {
-                    return ['has modified the post ', createPostnameSpan(data, excerpt(data['text_content'])), '.'];
-                }
-            },
-            'image': {
-                render: function (data) {
-                    var post = posts[data['post_id']];
-                    if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
-                    post.image = data['image'];
-                    post.render();
-                },
-                message: function (data) {
-                    var post = posts[data['post_id']];
-                    return ['has upload a picture to ', createPostnameSpan(data, excerpt(post.textContent)), '.'];
-                }
+            message: function (data) {
+                return ['has modified the post ', createPostnameSpan(data, excerpt(data['text_content'])), '.'];
             }
-        };
-        var ul = document.getElementById('activities');
-        return {
-            fromNotification: function (item) {
-                handlers[item['type']].render(item['data'], item['user_id'], item['display']);
-                ul.insertBefore(dom.create('li', null, [
-                    dom.create('span', { className: 'date' }, readableTime(item['time'])),
-                    ' ',
-                    dom.create('span', { className: 'name' }, item['display']),
-                    ' '
-                ].concat(handlers[item['type']].message(item['data']))), ul.firstChild);
+        },
+        'image': {
+            render: function (data) {
+                var post = posts[data['post_id']];
+                if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
+                post.image = data['image'];
+                post.render();
             },
-            fromSelf: function (type, json) {
-                handlers[type].render(json, login.getUserId(), login.getDisplay());
+            message: function (data) {
+                var post = posts[data['post_id']];
+                return ['has upload a picture to ', createPostnameSpan(data, excerpt(post.textContent)), '.'];
             }
         }
-    })();
+    });
 
     api.request('posts', function (res) {
         res.forEach(function (post) {
             new Post(post).render();
         });
         canvas.classList.add('loaded');
-        var ws = new WebSocket(api.websockets);
-        ws.onmessage = function (ev) {
-            JSON.parse(ev.data).forEach(notificationHandlers.fromNotification);
-        };
+        notification.startWebsockets();
     });
-})();
+};

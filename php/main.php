@@ -53,6 +53,9 @@ function legal_post_id($post_id, $user_id) {
 }
 
 function get_display($user_id) {
+  if (!$user_id) {
+    return NULL;
+  }
   $stmt = mysqli()->prepare('SELECT `display` FROM `user` WHERE `user_id` = ?');
   $stmt->bind_param('i', $user_id);
   if (!$stmt->execute()) { panic('SQL Error!'); }

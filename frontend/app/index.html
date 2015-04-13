@@ -19,7 +19,10 @@ https://github.com/kmxz/postwinge
     </div>
     <div id="sidebar">
       <div class="sidebar-group">
-        <p><button class="btn btn-default">我想对你说</button></p>
+        <div class="btn-group">
+          <button class="btn btn-default disabled" id="post-board">Free post</button>
+          <button class="btn btn-default disabled" id="note-board">@ someone</button>
+        </div>
       </div>
       <div class="sidebar-group" id="user-info">
         <p>You are logged-in as <span>guest</span></p>
@@ -33,8 +36,8 @@ https://github.com/kmxz/postwinge
         <ul id="activities"></ul>
       </div>
     </div>
-    <div class="canvas">
-    </div>
+    <div id="canvas-post"></div>
+    <div id="canvas-note"></div>
     <div id="shed"></div>
     <div class="write">
       <div class="icon"></div>
@@ -44,14 +47,16 @@ https://github.com/kmxz/postwinge
       <div class="icon"></div>
       Click to edit
     </div>
-    <!-- build:js({app,.tmp}) scripts/main.js -->
+    <!-- build:js({app,.tmp}) scripts/main_post.js -->
     <script src="scripts/modernizr.js"></script>
     <script src="scripts/rosetta.js"></script>
     <script src="scripts/dom.js"></script>
     <script src="scripts/thumbcutter.js"></script>
     <script src="scripts/api.js"></script>
     <script src="scripts/login.js"></script>
-    <script src="scripts/main.js"></script>
+    <script src="scripts/notification.js"></script>
+    <script src="scripts/main_post.js"></script>
+    <script src="scripts/loader.js"></script>
     <!-- endbuild -->
   </body>
 </html>

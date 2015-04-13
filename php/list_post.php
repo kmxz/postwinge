@@ -13,7 +13,6 @@ if (isset($_GET['post_id'])) {
   $stmt = mysqli()->prepare('
     SELECT
       post.`post_id`,
-      post.`reply_to`,
       post.`x_coord`,
       post.`y_coord`,
       post.`image`,
@@ -26,7 +25,6 @@ if (isset($_GET['post_id'])) {
       (
         SELECT
           `post_free`.`post_id`,
-          `post_free`.`reply_to`,
           `post_free`.`x_coord`,
           `post_free`.`y_coord`,
           `post_free`.`image`,
