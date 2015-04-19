@@ -22,7 +22,7 @@
             note.addEventListener('click', function () {
                 window.location.replace(baseUrl + '?at');
             })
-            mainPost();
+            mainPost.init();
             break;
         default:
             window.location.replace(baseUrl)

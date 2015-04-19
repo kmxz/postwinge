@@ -29,9 +29,21 @@ CREATE TABLE `session` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE `sticky_note` (
+  `note_id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `target_id` smallint(5) unsigned NOT NULL,
+  `datetime` datetime NOT NULL,
+  `text_content` text CHARACTER SET utf8 NOT NULL,
+  `image` tinytext CHARACTER SET utf8,
+  `user_id` smallint(5) unsigned NOT NULL,
+  `anonymous` tinyint(1) NOT NULL,
+  PRIMARY KEY (`note_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
 CREATE TABLE `user` (
   `user_id` smallint(6) NOT NULL AUTO_INCREMENT,
   `token` varchar(31) CHARACTER SET ascii NOT NULL,
   `display` tinytext CHARACTER SET utf8 NOT NULL,
+  `is_sticky_target` tinyint(1) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;

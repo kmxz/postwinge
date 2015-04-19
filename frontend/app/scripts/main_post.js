@@ -1,13 +1,11 @@
 /* exported mainPost */
 /* global api, dom, login, nontification, rosetta, thumbCutter */
-var mainPost = function() {
+var mainPost = (function() {
     'use strict';
 
     var canvas = document.getElementById('canvas-post');
     var edit = document.getElementsByClassName('edit')[0];
     var shed = document.getElementById('shed');
-
-    canvas.style.display = 'block';
 
     var slots = [];
     var posts = {};
@@ -95,6 +93,7 @@ var mainPost = function() {
 
     Slot.prototype.popout = function (callback) {
         if (this.popoutDummy) { return; } // already got one!
+        document.body.classList.add('modal-open');
         this.inAnimation = true;
         this.popoutDummy = this.el.cloneNode(false);
         canvas.replaceChild(this.popoutDummy, this.el);
@@ -162,6 +161,7 @@ var mainPost = function() {
             this.inAnimation = false;
             this.popinScheduled = false;
             this.popoutExtended = null;
+            document.body.classList.remove('modal-open');
         }.bind(this), rosetta.duration.val * 2000);
     };
 
@@ -435,8 +435,6 @@ var mainPost = function() {
         ])));
     };
 
-    dom.centerWindow();
-
     var excerpt = function (str) {
         return (str && str.length) ? (str.length <= 12 ? str : (str.substring(0, 10) + '...')) : 'a post';
     };
@@ -498,11 +496,20 @@ var mainPost = function() {
         }
     });
 
-    api.request('posts', function (res) {
-        res.forEach(function (post) {
-            new Post(post).render();
-        });
-        canvas.classList.add('loaded');
-        notification.startWebsockets('post');
-    });
-};
+    return {
+        posts: posts,
+        slots: slots,
+        init: function () {
+            api.request('posts', function (res) {
+                res.forEach(function (post) {
+                    new Post(post).render();
+                });
+                canvas.classList.add('loaded');
+                notification.startWebsockets('post');
+            });
+
+            dom.centerWindow();
+            canvas.style.display = 'block';
+        }
+    }
+})();
