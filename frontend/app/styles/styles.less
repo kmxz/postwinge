@@ -36,6 +36,10 @@ textarea.form-control {
   z-index: 10;
   opacity: 0;
   user-select: none;
+  &.loaded {
+    opacity: 1;
+    transition: @duration;
+  }
 }
 
 #canvas-post {
@@ -46,10 +50,6 @@ textarea.form-control {
   z-index: 15;
   opacity: 0;
   user-select: none;
-  &.loaded {
-    opacity: 1;
-    transition: @duration;
-  }
 }
 
 .post {
@@ -267,4 +267,25 @@ iframe {
 
 input[type=file] {
   display: inline;
+}
+
+.target {
+  height: @postHeight;
+  margin-top: 6px;
+  &:first-child {
+    margin-top: 0;
+  }
+  &.hover {
+    // TODO
+  }
+}
+
+.target-head {
+  height: @postHeight;
+  width: @postGrossWidth;
+  display: inline-block;
+  background: @postDefaultBackground;
+  line-height: @postHeight;
+  text-align: center;
+  color: #141414;
 }

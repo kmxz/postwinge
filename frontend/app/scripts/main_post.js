@@ -166,7 +166,7 @@ var mainPost = (function () {
         setTimeout(function () {
             this.el.classList.remove('animate-stage1');
             this.el.classList.remove('hover');
-            this.popoutDummy.classList.remove('hover')
+            this.popoutDummy.classList.remove('hover');
             this.setPopoutXToInitial(rect);
             this.popoutExtended.parentNode.removeChild(this.popoutExtended);
         }.bind(this), rosetta.duration.val * 1000);
@@ -230,7 +230,7 @@ var mainPost = (function () {
 
     var smartFont = function (el, content) {
         var p = dom.create('div', { className: 'text-content' }, content);
-        var legal = function () { return el.scrollHeight <= rosetta.postHeight.val; }
+        var legal = function () { return el.scrollHeight <= rosetta.postHeight.val; };
         dom.put(el, p);
         var fs = findMaximumAndSet(13, 40, function (t) {
             p.style.fontSize = t + 'px';
@@ -476,6 +476,9 @@ var mainPost = (function () {
 
     Post.prototype.remove = function () { // caution: strong assumption here: this post is totally empty
         this.slot.el.classList.add('empty');
+        if (this.slot.popoutDummy) {
+            this.slot.popoutDummy.classList.add('empty');
+        }
         this.slot.post = null;
         delete posts[this.postId];
     };
@@ -563,5 +566,5 @@ var mainPost = (function () {
             canvas.style.display = 'block';
             utilities.centerWindow();
         }
-    }
+    };
 })();

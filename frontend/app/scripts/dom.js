@@ -1,5 +1,5 @@
 /* exported dom */
-/* global rosetta, utilities */
+/* global utilities */
 var dom = (function () {
     'use strict';
 

@@ -1,5 +1,5 @@
 /* exported hack */
-/* global mainPost */
+/* global mainPost, utilities */
 var hack = (function () {
     'use strict';
 

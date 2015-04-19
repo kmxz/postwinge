@@ -1,4 +1,5 @@
 /* exported utilities */
+/* global rosetta */
 var utilities = (function () {
     'use strict';
 
@@ -44,5 +45,5 @@ var utilities = (function () {
                 }
             }
         }
-    }
+    };
 })();

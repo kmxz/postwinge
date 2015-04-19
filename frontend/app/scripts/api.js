@@ -48,13 +48,13 @@ var api = (function () {
                 });
             }
             if (config.method === 'post') {
-                if (!localStorage['postwingeSession']) {
+                if (!localStorage['ptSession']) {
                     window.alert('Please login to enjoy this feature.');
                     onerror();
                     return;
                 }
                 formData = new FormData();
-                formData.append('key', localStorage['postwingeSession']);
+                formData.append('key', localStorage['ptSession']);
                 if (hasParam) {
                     config.params.forEach(function (key) {
                         formData.append(key, params[key]);

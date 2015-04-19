@@ -8,27 +8,27 @@ var mainNote = (function() {
     var targets = {};
     var notes = {};
 
+    var Target = function (token, display) {
+        var head = dom.create('div', { className: 'target-head' }, display);
+        var el = dom.create('div', { className: 'target' }, [head]);
+        this.token = token;
+        this.display = display;
+        canvas.appendChild(el);
+    };
+
     var load = function () {
         if (!loadedOne) {
             loadedOne = true;
             return;
         }
-        utilities.forEach(targets, function (display, id) {
-            var head = dom.create('div', { className: 'target-head' }, display);
-            var el = dom.create('div', { className: 'target' }, [head]);
-            targets[id] = {
-                display: display,
-                el: el
-            };
-        });
-        canvas.style.display = 'block';
+        canvas.classList.add('loaded');
     };
 
     return {
         init: function () {
             api.request('targets', function (data) {
                 data.forEach(function (target) {
-                   targets[target['user_id']] = target['display'];
+                   targets[target['user_id']] = new Target(target['token'], target['display']);
                 });
                 load();
             });
@@ -38,6 +38,7 @@ var mainNote = (function() {
                 });
                 load();
             });
+            canvas.style.display = 'block';
         }
     };
 })();

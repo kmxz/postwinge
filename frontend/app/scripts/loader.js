@@ -1,4 +1,4 @@
-/* global mainPost */
+/* global mainPost, mainNote */
 window.onload = function () { // use window.onload for compatibility concern
     'use strict';
 
