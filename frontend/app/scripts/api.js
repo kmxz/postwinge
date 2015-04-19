@@ -15,12 +15,16 @@ var api = (function () {
         'posts': {method: 'get', url: 'list_post.php'},
         // all notes
         'notes': {method: 'get', url: 'list_note.php'},
+        // all target users for noting
+        'targets': {method: 'get', url: 'list_target.php'},
         // create a new post
         'create': {method: 'post', url: 'create.php', params: ['x', 'y']},
         // upload an image
         'image': {method: 'post', url: 'image.php', params: ['post_id', 'image']},
         // update a post
         'update': {method: 'post', url: 'update.php', params: ['post_id', 'text_content']},
+        // delete a post
+        'remove': {method: 'post', url: 'remove.php', params: ['post_id']},
         // create a new note
         'noting': {method: 'post', url: 'noting.php', params: ['target_id', 'text_content', 'image', 'anonymous']},
         // whoami

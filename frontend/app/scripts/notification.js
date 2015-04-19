@@ -36,12 +36,14 @@ var notification = (function () {
                 JSON.parse(ev.data).forEach(function (item) {
                     currentHandlers[item['type']].render(item['data'], item['user_id'], item['display']);
                     var msg = currentHandlers[item['type']].message;
-                    ul.insertBefore(dom.create('li', null, [
-                        dom.create('span', { className: 'date' }, readableTime(item['time'])),
-                        ' ',
-                        item['display'] ? dom.create('span', { className: 'name' }, item['display']) : 'Anonymous user',
-                        ' '
-                    ].concat(msg ? msg(item['data']): [])), ul.firstChild);
+                    if (msg) {
+                        ul.insertBefore(dom.create('li', null, [
+                            dom.create('span', {className: 'date'}, readableTime(item['time'])),
+                            ' ',
+                            item['display'] ? dom.create('span', {className: 'name'}, item['display']) : 'Anonymous user',
+                            ' '
+                        ].concat(msg(item['data']))), ul.firstChild);
+                    }
                 });
             };
         },

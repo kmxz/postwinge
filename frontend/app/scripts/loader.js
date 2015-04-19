@@ -1,5 +1,5 @@
 /* global mainPost */
-(function () {
+window.onload = function () { // use window.onload for compatibility concern
     'use strict';
 
     var post = document.getElementById('post-board');
@@ -14,6 +14,7 @@
             post.addEventListener('click', function () {
                 window.location.replace(baseUrl);
             });
+            mainNote.init();
             break;
         case '':
             note.classList.remove('disabled');
@@ -21,10 +22,10 @@
             post.classList.add('btn-primary');
             note.addEventListener('click', function () {
                 window.location.replace(baseUrl + '?at');
-            })
+            });
             mainPost.init();
             break;
         default:
-            window.location.replace(baseUrl)
+            window.location.replace(baseUrl);
     }
-})();
+};

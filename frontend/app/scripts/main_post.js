@@ -1,6 +1,6 @@
 /* exported mainPost */
-/* global api, dom, login, nontification, rosetta, thumbCutter */
-var mainPost = (function() {
+/* global api, dom, login, notification, rosetta, thumbCutter, utilities */
+var mainPost = (function () {
     'use strict';
 
     var canvas = document.getElementById('canvas-post');
@@ -54,7 +54,26 @@ var mainPost = (function() {
         edit.style.display = 'none';
     };
 
+    var getEmptyPost = function () {
+        var emptyPost = null;
+        utilities.forEach(posts, function (post) {
+            if ((post.userId === login.getUserId()) && (!post.nonEmpty())) {
+                emptyPost = post;
+            }
+        });
+        return emptyPost;
+    };
+
     Slot.prototype.newPost = function () {
+        var emptyPost = getEmptyPost();
+        if (emptyPost) {
+            if (window.confirm('You cannot create a new post as you already have an empty post! Click OK if you want to delete the existing empty post and proceed with creating new post, or click Cancel if you want to jump to the existing empty post to finish it.')) {
+                emptyPost.requestRemove(this.newPost.bind(this));
+            } else {
+                emptyPost.slot.scrollToCenterOfScreen();
+            }
+            return;
+        }
         var success = false;
         var extended = false;
         api.request('create', function (data) {
@@ -178,7 +197,7 @@ var mainPost = (function() {
     Slot.prototype.scrollToCenterOfScreen = function () {
         var left = parseInt(this.el.style.left);
         var top = parseInt(this.el.style.top);
-        dom.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2);
+        utilities.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2);
     };
 
     var i, j;
@@ -364,8 +383,8 @@ var mainPost = (function() {
 
     Post.prototype.startEdit = function () {
         var ta = dom.create('textarea', { placeholder: 'Enter content here (optional)...', className: 'form-control' }, this.textContent);
-        var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Cancel');
-        var saveBtn = dom.create('button', { className: ['btn', 'btn-primary'], type: 'button' }, 'Save');
+        var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Discard changes');
+        var saveBtn = dom.create('button', { className: ['btn', 'btn-primary'], type: 'button' }, 'Save changes');
         // do not directly change "busy", use two functions below
         var busy = false;
         var setBusy = function () {
@@ -384,8 +403,13 @@ var mainPost = (function() {
             dom.create('div', { className: 'form-group' }, ta),
         ])), dom.create('div', { className: 'bottom-btns' }, [ cancelBtn, ' ', saveBtn ])]);
         cancelBtn.addEventListener('click', function () {
-            if (window.confirm('Sure? All changes will be lost if you cancel.')) {
-                this.slot.popin();
+            if (window.confirm('Sure? ' + (this.nonEmpty() ? 'All changes will be lost' : 'The post will be deleted') + ' if you do so.')) {
+                if (this.nonEmpty()) {
+                    this.slot.popin();
+                } else { // empty! we need to recycle the slot!
+                    setBusy();
+                    this.requestRemove(this.slot.popin.bind(this.slot), this.slot.popin.bind(this.slot));
+                }
             }
         }.bind(this));
         saveBtn.addEventListener('click', function () {
@@ -402,6 +426,10 @@ var mainPost = (function() {
             }, unsetBusy);
         }.bind(this));
         autoResize(ta);
+    };
+
+    Post.prototype.nonEmpty = function () {
+        return this.image || this.revisionId;
     };
 
     Post.prototype.renderFull = function () {
@@ -433,6 +461,23 @@ var mainPost = (function() {
             dom.create('div', null, dom.nl2p(this.textContent)),
             dom.create('div', { className: 'bottom-btns' }, editBtn ? [ editBtn, ' ', closeBtn ] : closeBtn)
         ])));
+    };
+
+    Post.prototype.requestRemove = function (opt_success, opt_fail) {
+        var success = opt_success || function () {};
+        var fail = opt_fail || function () {};
+        api.request('remove', function (data) {
+            notification.fromSelf('remove', data);
+            success();
+        }.bind(this), {
+            'post_id': this.postId
+        }, fail); // we just pop in, as it might be because that the user submitted a revision in another window
+    };
+
+    Post.prototype.remove = function () { // caution: strong assumption here: this post is totally empty
+        this.slot.el.classList.add('empty');
+        this.slot.post = null;
+        delete posts[this.postId];
     };
 
     var excerpt = function (str) {
@@ -493,6 +538,14 @@ var mainPost = (function() {
             message: function (data) {
                 return ['uploaded ', createPostnameSpan(data, 'a picture'), ''];
             }
+        },
+        'remove': {
+            render: function (data) {
+                var post = posts[data['post_id']];
+                if (!post) { return; } // maybe already deleted if it's done by the user
+                post.remove();
+            },
+            message: false
         }
     });
 
@@ -507,9 +560,8 @@ var mainPost = (function() {
                 canvas.classList.add('loaded');
                 notification.startWebsockets('post');
             });
-
-            dom.centerWindow();
             canvas.style.display = 'block';
+            utilities.centerWindow();
         }
     }
 })();

@@ -36,7 +36,7 @@ var login = (function () {
         window.alert('Use your HKUST ITSC account to log in. Relax, we will not know your credentials. They\'ll be directly sent to ITSC servers via HTTPS, and we\'ll only know the authentication results. If you do not have an active ITSC account, email us to request for posting access.');
     });
 
-    if (localStorage['postwingeSession']) {
+    if (localStorage['ptSession']) {
         initInfo();
     } else {
         login.style.display = 'block';
@@ -46,7 +46,7 @@ var login = (function () {
         login: function (token) {
             api.request('login', function (key) {
                 if (key) {
-                    localStorage['postwingeSession'] = key;
+                    localStorage['ptSession'] = key;
                     iframe.parentNode.removeChild(iframe);
                     initInfo();
                 } else {
