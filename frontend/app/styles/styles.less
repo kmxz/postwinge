@@ -285,7 +285,26 @@ input[type=file] {
   width: @postGrossWidth;
   display: inline-block;
   background: @postDefaultBackground;
-  line-height: @postHeight;
-  text-align: center;
-  color: #141414;
+  .target-name {
+    height: 40px;
+    padding-top: 18px;
+    line-height: 18px;
+    font-size: 20px;
+    color: #141414;
+    text-align: center;
+  }
+  .target-token {
+    height: 40px;
+    padding-top: 10px;
+    line-height: 14px;
+    font-size: 14px;
+    color: #333333;
+    text-align: center;
+  }
+  .note-single {
+    width: @postGrossWidth;
+    height: @postHeight;
+    background: @postDefaultBackground;
+    display: inline-block;
+  }
 }

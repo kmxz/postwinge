@@ -1,5 +1,5 @@
 /* exported notification */
-/* global api, dom */
+/* global api, dom, login */
 var notification = (function () {
     'use strict';
 

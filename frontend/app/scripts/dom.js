@@ -36,18 +36,19 @@ var dom = (function () {
         }
     };
 
+    var put = function (el, children) {
+        while (el.lastChild) {
+            el.removeChild(el.lastChild);
+        }
+        append(el, children);
+    };
+
+    // for autoResize
+    var doppelganger = null;
+
     return {
         set: set,
-        getParent: function (node, filter) {
-            var cur = node;
-            while (cur) {
-                cur = cur.parentNode;
-                if (filter(cur)) {
-                    return cur;
-                }
-            }
-            return null;
-        },
+        put: put,
         create: function (tag, options, opt_children) {
             var element = document.createElement(tag);
             if (options) {
@@ -58,12 +59,6 @@ var dom = (function () {
             }
             return element;
         },
-        put: function (el, children) {
-            while (el.lastChild) {
-                el.removeChild(el.lastChild);
-            }
-            append(el, children);
-        },
         nl2p: function (str) {
             if (!str) { return null; }
             return str.split(/\r\n|\r|\n/).map(function (s) {
@@ -71,6 +66,21 @@ var dom = (function () {
                 append(p, s);
                 return p;
             });
+        },
+        autoResize: function (ta) {
+            if (doppelganger) { document.body.removeChild(doppelganger); }
+            doppelganger = ta.cloneNode(true);
+            doppelganger.classList.add('doppelganger');
+            doppelganger.style.width = ta.offsetWidth + 'px';
+            document.body.appendChild(doppelganger);
+            var resize = function () {
+                put(doppelganger, ta.value);
+                doppelganger.style.height = 100 + 'px';
+                ta.style.height = doppelganger.scrollHeight + 'px';
+            };
+            ta.addEventListener('keydown', resize);
+            ta.addEventListener('keyup', resize);
+            ta.addEventListener('change', resize);
         }
     };
 })();
