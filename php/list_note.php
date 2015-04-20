@@ -16,6 +16,8 @@ $stmt = mysqli()->prepare('
     LEFT JOIN
     `user`
     ON `sticky_note`.`user_id` = `user`.`user_id`
+  ORDER BY
+    `sticky_note`.`note_id` ASC
 ');
 
 if (!$stmt->execute()) { panic('SQL Error!'); }

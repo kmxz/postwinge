@@ -1,16 +1,16 @@
 /* exported mainPost */
-/* global AbstractPost, api, dom, login, notification, rosetta, utilities */
+/* global abstract, api, dom, login, notification, rosetta, utilities */
 var mainPost = (function () {
     'use strict';
 
     var canvas = document.getElementById('canvas-post');
     var edit = document.getElementsByClassName('edit')[0];
-    var shed = document.getElementById('shed');
 
     var slots = [];
     var posts = {};
 
     var Slot = function (x, y) {
+        this.super();
         this.x = x;
         this.y = y;
         this.core = dom.create('div', { className: 'post-core' });
@@ -20,39 +20,13 @@ var mainPost = (function () {
             this.la, this.ra,
             dom.create('div', { className: 'post-proper' }, this.core),
         ]);
-        this.postBgEl = null;
-        this.popoutDummy = null;
-        this.popoutExtended = null;
         this.inAnimation = false;
         this.popinScheduled = false;
-        this.post = null;
-        this.core.addEventListener('mouseenter', this.mouseenter.bind(this));
-        this.core.addEventListener('mouseleave', this.mouseleave.bind(this));
-        this.core.addEventListener('click', this.click.bind(this));
+        this.listen();
         canvas.appendChild(this.el);
     };
 
-    Slot.prototype.click = function () {
-        if (this.post) {
-            this.popout(this.post.renderFull.bind(this.post));
-        } else {
-            this.newPost();
-        }
-    };
-
-    Slot.prototype.mouseenter = function () {
-        this.el.classList.add('hover');
-        if (!this.post) {
-            this.core.parentNode.appendChild(edit);
-            edit.style.display = 'block';
-        }
-    };
-
-    Slot.prototype.mouseleave = function () {
-        if (this.popoutDummy) { return; } // keep hover style! will auto remove when popin
-        this.el.classList.remove('hover');
-        edit.style.display = 'none';
-    };
+    utilities.inherits(Slot, abstract.Slot);
 
     var getEmptyPost = function () {
         var emptyPost = null;
@@ -96,58 +70,6 @@ var mainPost = (function () {
                 dom.put(this.popoutExtended, dom.create('div', {className: ['alert alert-primary']}, 'Please wait...'));
             }
         }.bind(this));
-    };
-
-    var postProperWidth = (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val);
-
-    Slot.prototype.setPopoutXToInitial = function (rect) {
-        this.el.style.left = rect.left + 'px';
-        this.el.style.width = postProperWidth + 'px';
-    };
-
-    Slot.prototype.setPopoutYToInitial = function (rect) {
-        this.el.style.top = rect.top / document.documentElement.clientHeight * 100 + '%';
-        this.el.style.height = rosetta.postHeight.val / document.documentElement.clientHeight * 100 + '%';
-    };
-
-    Slot.prototype.popout = function (callback) {
-        if (this.popoutDummy) { return; } // already got one!
-        document.body.classList.add('modal-open');
-        this.inAnimation = true;
-        this.popoutDummy = this.el.cloneNode(false);
-        canvas.replaceChild(this.popoutDummy, this.el);
-        this.popoutExtended = dom.create('div', { className: 'post-extended' });
-        this.core.parentNode.appendChild(this.popoutExtended);
-        var rect = this.popoutDummy.getBoundingClientRect();
-        this.setPopoutXToInitial(rect);
-        this.setPopoutYToInitial(rect);
-        this.el.classList.add('cloned');
-        this.popoutDummy.style.visibility = 'hidden'; // yes, we hide it
-        document.body.appendChild(this.el);
-        shed.style.display = 'block';
-        setTimeout(function () {
-            this.el.style.transition = rosetta.duration.val + 's';
-            this.el.style.left = 'calc(50% - ' + rosetta.popRatio.val * postProperWidth / 2 + 'px)';
-            this.el.style.width = rosetta.popRatio.val * postProperWidth + 'px';
-            this.el.classList.remove('empty'); // just popped out one
-            this.el.classList.add('animate-stage1');
-            shed.classList.add('shown');
-        }.bind(this), 0);
-        setTimeout(function () {
-            this.el.style.top = '12.5%';
-            this.el.style.height = '75%';
-            this.el.classList.add('animate-stage2');
-            edit.style.display = 'none';
-            callback();
-        }.bind(this), rosetta.duration.val * 1000);
-        setTimeout(function () {
-            window.popIn = this.popin.bind(this);
-            this.popoutExtended.style.pointerEvents = 'auto';
-            this.inAnimation = false;
-            if (this.popinScheduled) {
-                this.popin();
-            }
-        }.bind(this), rosetta.duration.val * 2000);
     };
 
     Slot.prototype.popin = function () {
@@ -194,12 +116,6 @@ var mainPost = (function () {
         this.el.style.top = top + 'px';
     };
 
-    Slot.prototype.scrollToCenterOfScreen = function () {
-        var left = parseInt(this.el.style.left);
-        var top = parseInt(this.el.style.top);
-        utilities.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2);
-    };
-
     var i, j;
     for (i = 0; i < rosetta.numOfPostsY.val; i++) {
         slots[i] = [];
@@ -223,7 +139,7 @@ var mainPost = (function () {
         this.slot.post = this;
     };
 
-    utilities.inherits(Post, AbstractPost);
+    utilities.inherits(Post, abstract.Post);
 
     var preventThen = function (realCallback) {
         return function (e) {
@@ -426,7 +342,6 @@ var mainPost = (function () {
 
     return {
         posts: posts,
-        slots: slots,
         init: function () {
             api.request('posts', function (res) {
                 res.forEach(function (post) {

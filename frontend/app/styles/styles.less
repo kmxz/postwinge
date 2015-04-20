@@ -74,38 +74,6 @@ textarea.form-control {
     background: @postDefaultBackground;
     box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.5), 0 -5px 5px -5px rgba(0, 0, 0, 0.5);
     position: relative;
-    .post-bg {
-      width: @postGrossWidth;
-      height: @postHeight;
-      position: absolute;
-      left: calc(50% - (@postGrossWidth / 2));
-      top: 0;
-      background-size: cover;
-    }
-    .post-core {
-      width: @postProperWidth;
-      height: @postHeight;
-      position: relative;
-      margin: auto;
-      .text-content {
-        width: @postProperWidth;
-        overflow-x: hidden;
-        display: table-cell;
-        line-height: 150%;
-        vertical-align: middle;
-        word-break: break-all;
-        color: #333333;
-      }
-      .image-text {
-        color: #141414;
-        position: absolute;
-        bottom: 0;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: @postProperWidth;
-        overflow: hidden;
-      }
-    }
   }
   .right-arrow {
     left: 100%;
@@ -124,6 +92,46 @@ textarea.form-control {
   }
   &.empty {
     opacity: 0.6;
+  }
+}
+
+.post-proper, .note-single {
+  .post-bg {
+    width: @postGrossWidth;
+    height: @postHeight;
+    position: absolute;
+    left: calc(50% - (@postGrossWidth / 2));
+    top: 0;
+    background-size: cover;
+  }
+  .post-core {
+    .post-proper & {
+      width: @postProperWidth;
+    }
+    .note-single & {
+      width: @postGrossWidth;
+    }
+    height: @postHeight;
+    position: relative;
+    margin: auto;
+    .text-content {
+      width: 100%;
+      overflow-x: hidden;
+      display: table-cell;
+      line-height: 150%;
+      vertical-align: middle;
+      word-break: break-all;
+      color: #333333;
+    }
+    .image-text {
+      color: #141414;
+      position: absolute;
+      bottom: 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+      overflow: hidden;
+    }
   }
 }
 
@@ -269,28 +277,35 @@ input[type=file] {
   display: inline;
 }
 
-.target {
-  height: @postHeight;
+#canvas-note {
+  padding-left: @postGrossWidth;
+}
+
+#note-heads {
+  width: @postGrossWidth;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.target-head, .target {
   margin-top: 6px;
   &:first-child {
     margin-top: 0;
-  }
-  &.hover {
-    // TODO
   }
 }
 
 .target-head {
   height: @postHeight;
   width: @postGrossWidth;
-  display: inline-block;
-  background: @postDefaultBackground;
+  background: rgba(0, 0, 0, 0.5);
+  vertical-align: middle;
   .target-name {
     height: 40px;
     padding-top: 18px;
     line-height: 18px;
     font-size: 20px;
-    color: #141414;
+    color: #F9F9F9;
     text-align: center;
   }
   .target-token {
@@ -298,13 +313,23 @@ input[type=file] {
     padding-top: 10px;
     line-height: 14px;
     font-size: 14px;
-    color: #333333;
+    color: #CCCCCC;
     text-align: center;
   }
-  .note-single {
-    width: @postGrossWidth;
-    height: @postHeight;
-    background: @postDefaultBackground;
-    display: inline-block;
+}
+
+.target {
+  height: @postHeight;
+  &.hover {
+    // TODO
   }
+}
+
+.note-single {
+  width: @postGrossWidth;
+  height: @postHeight;
+  background: @postDefaultBackground;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
 }
