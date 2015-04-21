@@ -32,9 +32,10 @@
             div.style.cssText = 'width: calc(10px)';
             return !!div.style.length;
         },
-        'pointerEvents': function () {
-            var div = document.createElement('div');
-            return ('pointerEvents' in div.style);
+        'pointerEvents': function(){
+            var style = document.createElement('a').style;
+            style.cssText = 'pointer-events:auto';
+            return style.pointerEvents === 'auto';
         },
         'styleproperty': function () {
             var div = document.createElement('div');
