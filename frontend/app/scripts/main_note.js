@@ -214,7 +214,7 @@ var mainNote = (function() {
 
     var keyFindInit = function () {
         var currentStr = '';
-        var killTimeout = null;
+        var styleTimeout = null;
         var kore = null;
         var updateHint = function () {
             if (hintHint) {
@@ -239,23 +239,21 @@ var mainNote = (function() {
                     }
                 }
             });
-            if (match) {
-                match.scrollTo();
-            }
             if (kore) {
                 kel.removeChild(kore);
             }
             kore = dom.create('div', { className: match ? 'hint-core' : ['hint-core', 'not-found'] }, currentStr);
             kel.appendChild(kore);
-            setTimeout(function () {
-                kore.classList.add('killed');
-            }, 10);
-            if (killTimeout) {
-                clearTimeout(killTimeout);
+            if (styleTimeout) {
+                clearTimeout(styleTimeout);
             }
-            killTimeout = setTimeout(function () {
+            styleTimeout = setTimeout(function () {
+                kore.classList.add('killed');
                 currentStr = '';
-            }, 2 * rosetta.duration.val * 1000);
+                if (match) {
+                    match.scrollTo();
+                }
+            }, 1.5 * rosetta.duration.val * 1000);
         };
         document.documentElement.addEventListener('keydown', function (e) {
             if (document.getElementsByClassName('cloned').length) {
