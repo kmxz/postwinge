@@ -9,7 +9,6 @@ var hack = (function () {
     return function () {
         [mainPost, mainNote].forEach(function (main) {
             utilities.forEach(main.posts, function (post) {
-                console.log(post);
                 post.image = 'ada7e33da0d8fd168f49337ba171f4cc.png';
                 post.render();
             });

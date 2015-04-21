@@ -44,6 +44,7 @@ CREATE TABLE `user` (
   `user_id` smallint(6) NOT NULL AUTO_INCREMENT,
   `token` varchar(31) CHARACTER SET ascii NOT NULL,
   `display` tinytext NOT NULL,
+  `index_name` tinytext CHARACTER SET ascii NOT NULL,
   `is_sticky_target` tinyint(1) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;

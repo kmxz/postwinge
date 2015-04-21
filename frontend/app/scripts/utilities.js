@@ -63,6 +63,12 @@ var utilities = (function () {
                 }
             }
         },
+        sort: function (object, sorter) {
+            var vals = Object.keys(object).map(function (key) {
+                return object[key];
+            });
+            return vals.sort(sorter);
+        },
         inherits: function(childCtor, parentCtor) { // modified from goog.inherits
             var TempCtor = function () {};
             TempCtor.prototype = parentCtor.prototype;

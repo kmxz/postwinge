@@ -11,6 +11,7 @@ var mainNote = (function() {
     var noteData = null;
     var loadedOne = false;
     var targets = {};
+    var sortedTargets = null;
     var notes = {};
 
     var Target = function (id, token, display) {
@@ -19,12 +20,16 @@ var mainNote = (function() {
         this.targetId = id;
         this.head = dom.create('div', { className: 'target-head' }, [displayEl, tokenEl]);
         this.body = dom.create('div', { className: 'target' });
+        this.token = token;
         this.display = display;
         this.head.addEventListener('mouseenter', this.mouseenter.bind(this));
         this.head.addEventListener('mouseleave', this.mouseleave.bind(this));
         this.head.addEventListener('click', this.click.bind(this));
         this.body.addEventListener('mouseenter', this.mouseenter.bind(this));
         this.body.addEventListener('mouseleave', this.mouseleave.bind(this));
+    };
+
+    Target.prototype.render = function () {
         heads.appendChild(this.head);
         bodies.appendChild(this.body);
     };
@@ -112,6 +117,7 @@ var mainNote = (function() {
                 check(input.files[0]);
             }
         });
+        imgPanel.addEventListener('dragenter', dom.preventThen(function () {}));
         imgPanel.addEventListener('dragover', dom.preventThen(function () {
             if (imgPanel.lastChild !== pb1) { return; }
             setPb(pb2);
@@ -228,7 +234,13 @@ var mainNote = (function() {
         init: function () {
             api.request('targets', function (data) {
                 data.forEach(function (target) {
-                   targets[target['user_id']] = new Target(target['user_id'], target['token'], target['display']);
+                   targets[target['user_id']] = new Target(target['user_id'], target['index_name'], target['display']);
+                });
+                sortedTargets = utilities.sort(targets, function (t1, t2) {
+                   t1.token.localeCompare(t2.token);
+                });
+                sortedTargets.forEach(function (target) {
+                   target.render();
                 });
                 load();
             });
