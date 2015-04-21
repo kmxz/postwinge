@@ -16,4 +16,4 @@ $postMarginY = 10px
 $popRatio = 5
 
 // duration
-$duration = 0.5s
+$duration = 2.5s

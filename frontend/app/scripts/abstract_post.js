@@ -12,6 +12,7 @@ var abstract = (function () {
         this.core = null; // subtype constructor should fill this
         this.postBgEl = null;
         this.popoutExtended = null;
+        this.bottomBtns = null;
         this.inAnimation = false;
         this.popoutDummy = null;
         this.post = null;
@@ -65,12 +66,10 @@ var abstract = (function () {
 
     AbstractSlot.prototype.setPopoutXToInitial = function (rect) {
         this.el.style.left = rect.left + 'px';
-        this.el.style.width = postProperWidth + 'px';
     };
 
     AbstractSlot.prototype.setPopoutYToInitial = function (rect) {
-        this.el.style.top = rect.top / document.documentElement.clientHeight * 100 + '%';
-        this.el.style.height = rosetta.postHeight.val / document.documentElement.clientHeight * 100 + '%';
+        this.el.style.top = rect.top + 'px';
     };
 
     AbstractSlot.prototype.popout = function (callback) {
@@ -81,7 +80,9 @@ var abstract = (function () {
         this.popoutDummy = this.el.cloneNode(false);
         this.el.parentNode.replaceChild(this.popoutDummy, this.el);
         this.popoutExtended = dom.create('div', { className: 'post-extended' });
+        this.bottomBtns = dom.create('div', { className: 'bottom-btns' });
         this.core.parentNode.appendChild(this.popoutExtended);
+        this.core.parentNode.appendChild(this.bottomBtns);
         var rect = this.popoutDummy.getBoundingClientRect();
         this.setPopoutXToInitial(rect);
         this.setPopoutYToInitial(rect);
@@ -91,21 +92,21 @@ var abstract = (function () {
         shed.style.display = 'block';
         setTimeout(function () {
             this.el.style.transition = rosetta.duration.val + 's';
-            this.el.style.left = 'calc(50% - ' + rosetta.popRatio.val * postProperWidth / 2 + 'px)';
-            this.el.style.width = rosetta.popRatio.val * postProperWidth + 'px';
+            this.el.style.left = '50%';
             this.el.classList.remove('empty'); // just popped out one
             this.el.classList.add('animate-stage1');
             shed.classList.add('shown');
         }.bind(this), 0);
         setTimeout(function () {
             this.el.style.top = '12.5%';
-            this.el.style.height = '75%';
             this.el.classList.add('animate-stage2');
             edit.style.display = 'none';
             callback();
         }.bind(this), rosetta.duration.val * 1000);
         setTimeout(function () {
             this.popoutExtended.style.pointerEvents = 'auto';
+            this.popoutExtended.style.overflow = 'auto';
+            this.bottomBtns.style.pointerEvents = 'auto';
             this.inAnimation = false;
             if (this.popinScheduled) {
                 this.popin();
@@ -120,6 +121,8 @@ var abstract = (function () {
         }
         this.inAnimation = true;
         this.popoutExtended.style.pointerEvents = 'none';
+        this.popoutExtended.style.overflow = 'hidden';
+        this.bottomBtns.style.pointerEvents = 'none';
         var rect = this.popoutDummy.getBoundingClientRect();
         this.el.classList.remove('animate-stage2');
         shed.classList.remove('shown');
@@ -130,6 +133,7 @@ var abstract = (function () {
             this.popoutDummy.classList.remove('hover');
             this.setPopoutXToInitial(rect);
             this.popoutExtended.parentNode.removeChild(this.popoutExtended);
+            this.bottomBtns.parentNode.removeChild(this.bottomBtns);
         }.bind(this), rosetta.duration.val * 1000);
         setTimeout(function () {
             shed.style.display = 'none';
@@ -141,6 +145,7 @@ var abstract = (function () {
             this.inAnimation = false;
             this.popinScheduled = false;
             this.popoutExtended = null;
+            this.bottomBtns = null;
             document.body.classList.remove('modal-open');
         }.bind(this), rosetta.duration.val * 2000);
     };
@@ -260,8 +265,8 @@ var abstract = (function () {
             ])),
             imgEl,
             dom.create('div', null, dom.nl2p(this.textContent)),
-            dom.create('div', { className: 'bottom-btns' }, editBtn ? [ editBtn, ' ', closeBtn ] : closeBtn)
         ]));
+        dom.put(this.slot.bottomBtns, editBtn ? [ editBtn, ' ', closeBtn ] : closeBtn);
     };
 
     AbstractPost.prototype.excerpt = function () {

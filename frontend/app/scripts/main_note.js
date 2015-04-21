@@ -162,7 +162,8 @@ var mainNote = (function() {
                 anonymous,
                 ' Post anonymously'
             ]))
-        ]), dom.create('div', { className: 'bottom-btns' }, [ cancelBtn, ' ', saveBtn ])]);
+        ])]);
+        dom.put(this.bottomBtns, [ cancelBtn, ' ', saveBtn ]);
         cancelBtn.addEventListener('click', function () {
             if (window.confirm('Sure? The content will be discarded if you do so.')) {
                 this.popAbort();

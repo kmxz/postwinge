@@ -188,7 +188,8 @@ var mainPost = (function () {
             dom.create('h4', null, 'Edit post'),
             this.createFileUpload(),
             dom.create('div', { className: 'form-group' }, ta),
-        ]), dom.create('div', { className: 'bottom-btns' }, [ cancelBtn, ' ', saveBtn ])]);
+        ])]);
+        dom.put(this.slot.bottomBtns, [ cancelBtn, ' ', saveBtn ]);
         cancelBtn.addEventListener('click', function () {
             if (window.confirm('Sure? ' + (this.nonEmpty() ? 'All changes will be lost' : 'The post will be deleted') + ' if you do so.')) {
                 if (this.nonEmpty()) {

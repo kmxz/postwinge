@@ -32,6 +32,10 @@
             div.style.cssText = 'width: calc(10px)';
             return !!div.style.length;
         },
+        'styleproperty': function () {
+            var div = document.createElement('div');
+            return ('removeProperty' in div.style);
+        },
         'cssGradient': function () {
             var div = document.createElement('div');
             div.style.backgroundImage = 'linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))';
