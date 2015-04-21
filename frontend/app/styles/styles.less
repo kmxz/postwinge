@@ -105,12 +105,7 @@ textarea.form-control {
     background-size: cover;
   }
   .post-core {
-    .post-proper & {
-      width: @postProperWidth;
-    }
-    .note-single & {
-      width: @postGrossWidth;
-    }
+    width: @postProperWidth;
     height: @postHeight;
     position: relative;
     margin: auto;
@@ -135,51 +130,7 @@ textarea.form-control {
   }
 }
 
-.post.cloned {
-  z-index: 100;
-  position: fixed;
-  .post-core, .left-arrow, .right-arrow, .post-extended, .post-proper, .post-bg, .edit {
-    transition: @duration;
-  }
-  .post-extended {
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    pointer-events: none;
-    margin-top: -@postHeight;
-    padding: 20px 20px 56px 20px;
-    overflow: auto;
-    .bottom-btns {
-      text-align: center;
-      position: absolute;
-      width: calc(100% - 40px);
-      bottom: 20px;
-    }
-    .content-img {
-      max-width: 80%;
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
-  }
-  &.animate-stage1 {
-    .post-core, .post-bg, .edit {
-      opacity: 0;
-    }
-    .left-arrow {
-      border-right-width: 0;
-    }
-    .right-arrow {
-      border-left-width: 0;
-    }
-  }
-  &.animate-stage2 {
-    .post-extended {
-      opacity: 1;
-    }
-  }
-}
-
-iframe {
+iframe { // for log-in
   visibility: hidden;
   width: 0;
   height: 0;
@@ -233,6 +184,12 @@ iframe {
   background: url(../images/write.png) center center no-repeat;
   pointer-events: none;
   display: none;
+}
+
+#compose {
+  display: none;
+  height: 40px;
+  text-align: center;
 }
 
 #activities {
@@ -300,10 +257,11 @@ input[type=file] {
   width: @postGrossWidth;
   background: rgba(0, 0, 0, 0.5);
   vertical-align: middle;
+  overflow: hidden;
   .target-name {
     height: 40px;
-    padding-top: 18px;
-    line-height: 18px;
+    padding-top: 16px;
+    line-height: 16px;
     font-size: 20px;
     color: #F9F9F9;
     text-align: center;
@@ -316,20 +274,93 @@ input[type=file] {
     color: #CCCCCC;
     text-align: center;
   }
+  #compose {
+    display: block;
+    padding-top: 2px;
+  }
 }
 
 .target {
   height: @postHeight;
-  &.hover {
-    // TODO
-  }
 }
 
 .note-single {
-  width: @postGrossWidth;
+  width: @postProperWidth;
   height: @postHeight;
   background: @postDefaultBackground;
   position: relative;
   display: inline-block;
   vertical-align: middle;
+  margin-left: (6px + @postWingWidth);
+  margin-right: @postWingWidth;
+  .left-wing {
+    right: 100%;
+  }
+  .right-wing {
+    left: 100%;
+  }
+  .left-wing, .right-wing {
+    background: @postDefaultBackground;
+    position: absolute;
+    width: @postWingWidth;
+    height: @postHeight;
+    top: 0;
+  }
+  &.hover {
+    background: @postActiveBackground;
+    .left-wing, .right-wing {
+      background: @postActiveBackground;
+    }
+  }
+}
+
+.cloned {
+  z-index: 100;
+  position: fixed;
+  margin: 0; // for note-single
+  .post-core, .left-arrow, .left-wing, .right-arrow, .right-wing, .post-extended, .post-proper, .post-bg, .edit {
+    transition: @duration;
+  }
+  .post-extended {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    margin-top: -@postHeight;
+    padding: 20px 20px 56px 20px;
+    overflow: auto;
+    .bottom-btns {
+      text-align: center;
+      position: absolute;
+      width: calc(100% - 40px);
+      bottom: 20px;
+    }
+    .content-img {
+      max-width: 80%;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+  }
+  &.animate-stage1 {
+    .post-core, .post-bg, .edit {
+      opacity: 0;
+    }
+    .left-arrow {
+      border-right-width: 0;
+    }
+    .left-wing {
+      width: 0;
+    }
+    .right-arrow {
+      border-left-width: 0;
+    }
+    .right-wing {
+      width: 0;
+    }
+  }
+  &.animate-stage2 {
+    .post-extended {
+      opacity: 1;
+    }
+  }
 }

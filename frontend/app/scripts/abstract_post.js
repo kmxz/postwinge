@@ -103,6 +103,42 @@ var abstract = (function () {
         }.bind(this), rosetta.duration.val * 2000);
     };
 
+    AbstractSlot.prototype.popin = function () {
+        if (this.inAnimation) {
+            this.popinScheduled = true; // if in popout animation, do popin when finished
+            return;
+        }
+        this.inAnimation = true;
+        this.popoutExtended.style.pointerEvents = 'none';
+        var rect = this.popoutDummy.getBoundingClientRect();
+        setTimeout(function () {
+            this.el.classList.remove('animate-stage2');
+            shed.classList.remove('shown');
+            this.setPopoutYToInitial(rect);
+        }.bind(this), 0);
+        setTimeout(function () {
+            this.el.classList.remove('animate-stage1');
+            this.el.classList.remove('hover');
+            this.popoutDummy.classList.remove('hover');
+            this.setPopoutXToInitial(rect);
+            this.popoutExtended.parentNode.removeChild(this.popoutExtended);
+        }.bind(this), rosetta.duration.val * 1000);
+        setTimeout(function () {
+            shed.style.display = 'none';
+            this.popoutDummy.style.visibility = 'visible';
+            dom.put(this.popoutDummy, Array.prototype.slice.call(this.el.childNodes));
+            document.body.removeChild(this.el);
+            this.el = this.popoutDummy;
+            this.popoutDummy = null;
+            this.inAnimation = false;
+            this.popinScheduled = false;
+            this.popoutExtended = null;
+            document.body.classList.remove('modal-open');
+        }.bind(this), rosetta.duration.val * 2000);
+    };
+
+    AbstractSlot.prototype.shouldCut = null; // warning: this should be overridden by children
+
     var AbstractPost = function (textContent, display, datetime, image) {
         this.textContent = textContent;
         this.display = display;
@@ -162,7 +198,7 @@ var abstract = (function () {
             this.slot.core.parentNode.insertBefore(this.slot.postBgEl, this.slot.core);
             thumbCutter(api.image(this.image, true), function (dataUrl) {
                 this.slot.postBgEl.style.backgroundImage = 'url(\'' + dataUrl + '\')';
-            }.bind(this));
+            }.bind(this), this.slot.shouldCut);
             if (this.textContent && this.textContent.length) {
                 imageText(this.slot.core, this.textContent);
             }
@@ -197,7 +233,7 @@ var abstract = (function () {
             dom.create('legend', null, 'Post details'),
             dom.create('div', { className: ['panel', 'panel-default'] }, dom.create('div', { className: 'panel-body' }, [
                 'This post is published by ',
-                dom.create('span', { className: 'name' }, this.display),
+                dom.create('span', { className: 'name' }, this.display || 'Anonymous user'),
                 ' on ',
                 this.datetime
             ])),

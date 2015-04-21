@@ -14,10 +14,9 @@ var mainPost = (function () {
         this.x = x;
         this.y = y;
         this.core = dom.create('div', { className: 'post-core' });
-        this.la =  dom.create('div', { className: 'left-arrow' });
-        this.ra =  dom.create('div', { className: 'right-arrow' });
         this.el = dom.create('div', { className: ['post', 'empty'] }, [
-            this.la, this.ra,
+            dom.create('div', { className: 'left-arrow' }),
+            dom.create('div', { className: 'right-arrow' }),
             dom.create('div', { className: 'post-proper' }, this.core),
         ]);
         this.inAnimation = false;
@@ -27,6 +26,8 @@ var mainPost = (function () {
     };
 
     utilities.inherits(Slot, abstract.Slot);
+
+    Slot.prototype.shouldCut = true;
 
     var getEmptyPost = function () {
         var emptyPost = null;
@@ -70,40 +71,6 @@ var mainPost = (function () {
                 dom.put(this.popoutExtended, dom.create('div', {className: ['alert alert-primary']}, 'Please wait...'));
             }
         }.bind(this));
-    };
-
-    Slot.prototype.popin = function () {
-        if (this.inAnimation) {
-            this.popinScheduled = true; // if in popout animation, do popin when finished
-            return;
-        }
-        this.inAnimation = true;
-        this.popoutExtended.style.pointerEvents = 'none';
-        var rect = this.popoutDummy.getBoundingClientRect();
-        setTimeout(function () {
-            this.el.classList.remove('animate-stage2');
-            shed.classList.remove('shown');
-            this.setPopoutYToInitial(rect);
-        }.bind(this), 0);
-        setTimeout(function () {
-            this.el.classList.remove('animate-stage1');
-            this.el.classList.remove('hover');
-            this.popoutDummy.classList.remove('hover');
-            this.setPopoutXToInitial(rect);
-            this.popoutExtended.parentNode.removeChild(this.popoutExtended);
-        }.bind(this), rosetta.duration.val * 1000);
-        setTimeout(function () {
-            shed.style.display = 'none';
-            this.popoutDummy.style.visibility = 'visible';
-            dom.put(this.popoutDummy, Array.prototype.slice.call(this.el.childNodes));
-            document.body.removeChild(this.el);
-            this.el = this.popoutDummy;
-            this.popoutDummy = null;
-            this.inAnimation = false;
-            this.popinScheduled = false;
-            this.popoutExtended = null;
-            document.body.classList.remove('modal-open');
-        }.bind(this), rosetta.duration.val * 2000);
     };
 
     Slot.prototype.getLocationAndSet = function () {
@@ -283,63 +250,6 @@ var mainPost = (function () {
         delete posts[this.postId];
     };
 
-    notification.setHandlers({
-        'create': {
-            render: function (data, user_id, display) {
-                var slot = slots[data['y_coord']][data['x_coord']];
-                if (slot.post) { // already one
-                    return;
-                }
-                new Post({
-                    'post_id': data['post_id'],
-                    'user_id': user_id,
-                    'display': display,
-                    'datetime': null,
-                    'image': null,
-                    'revision_id': null,
-                    'text_content': null,
-                    'x_coord': data['x_coord'],
-                    'y_coord': data['y_coord']
-                });
-            },
-            message: false
-        },
-        'update': {
-            render: function (data) {
-                var post = posts[data['post_id']];
-                if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
-                if (data['revision_id'] <= post.revisionId) { return; } // don't worry, null will be treated as 0 in comparison
-                post.revisionId = data['revision_id'];
-                post.datetime = data['datetime'];
-                post.textContent = data['text_content'];
-                post.render();
-            },
-            message: function (data) {
-                var post = posts[data['post_id']];
-                return [': ', post.createPostnameSpan(post.excerpt()), '.'];
-            }
-        },
-        'image': {
-            render: function (data) {
-                var post = posts[data['post_id']];
-                if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
-                post.image = data['image'];
-                post.render();
-            },
-            message: function (data) {
-                return ['uploaded ', posts[data['post_id']].createPostnameSpan('a picture'), ''];
-            }
-        },
-        'remove': {
-            render: function (data) {
-                var post = posts[data['post_id']];
-                if (!post) { return; } // maybe already deleted if it's done by the user
-                post.remove();
-            },
-            message: false
-        }
-    });
-
     return {
         posts: posts,
         init: function () {
@@ -348,7 +258,62 @@ var mainPost = (function () {
                     new Post(post).render();
                 });
                 canvas.classList.add('loaded');
-                notification.startWebsockets('post');
+                notification.startWebsockets('post', {
+                    'create': {
+                        render: function (data, user_id, display) {
+                            var slot = slots[data['y_coord']][data['x_coord']];
+                            if (slot.post) { // already one
+                                return;
+                            }
+                            new Post({
+                                'post_id': data['post_id'],
+                                'user_id': user_id,
+                                'display': display,
+                                'datetime': null,
+                                'image': null,
+                                'revision_id': null,
+                                'text_content': null,
+                                'x_coord': data['x_coord'],
+                                'y_coord': data['y_coord']
+                            }); // no need to render as there is not content yet anyway
+                        },
+                        message: false
+                    },
+                    'update': {
+                        render: function (data) {
+                            var post = posts[data['post_id']];
+                            if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
+                            if (data['revision_id'] <= post.revisionId) { return; } // don't worry, null will be treated as 0 in comparison
+                            post.revisionId = data['revision_id'];
+                            post.datetime = data['datetime'];
+                            post.textContent = data['text_content'];
+                            post.render();
+                        },
+                        message: function (data) {
+                            var post = posts[data['post_id']];
+                            return [': ', post.createPostnameSpan(post.excerpt()), '.'];
+                        }
+                    },
+                    'image': {
+                        render: function (data) {
+                            var post = posts[data['post_id']];
+                            if (!post) { return; } // sometimes the message arrive in wrong order. just ignore as such cases are rare
+                            post.image = data['image'];
+                            post.render();
+                        },
+                        message: function (data) {
+                            return ['uploaded ', posts[data['post_id']].createPostnameSpan('a picture'), ''];
+                        }
+                    },
+                    'remove': {
+                        render: function (data) {
+                            var post = posts[data['post_id']];
+                            if (!post) { return; } // maybe already deleted if it's done by the user
+                            post.remove();
+                        },
+                        message: false
+                    }
+                });
             });
             canvas.style.display = 'block';
             utilities.centerWindow();

@@ -2,7 +2,7 @@
 
 // single post in canvas
 $postGrossWidth = 160px // corresponding setting need to be changed manually in thumb.php
-$postWingWidth = 25px
+$postWingWidth = 20px
 $postHeight = 80px // corresponding setting need to be changed manually in thumb.php
 
 // canvas

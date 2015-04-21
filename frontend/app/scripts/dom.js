@@ -49,6 +49,14 @@ var dom = (function () {
     return {
         set: set,
         put: put,
+        hasAncestor: function (el, ancestor) {
+            var target = el;
+            while (target) {
+                if (target === ancestor) { return true; }
+                target = target.parentNode;
+            }
+            return false;
+        },
         create: function (tag, options, opt_children) {
             var element = document.createElement(tag);
             if (options) {
