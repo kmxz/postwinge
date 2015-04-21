@@ -1,5 +1,5 @@
 /* exported mainNote */
-/* global abstract, api, dom, login, utilities */
+/* global abstract, api, dom, login, notification, utilities */
 var mainNote = (function() {
     'use strict';
 
@@ -208,7 +208,7 @@ var mainNote = (function() {
             notes[note['note_id']] = new Note(note['note_id'], note['text_content'], note['image'], note['datetime'], note['target_id'], note['display']);
             notes[note['note_id']].render();
         });
-        //utilities.randomScrollY(); // FIXME this line is temporarily disabled for DEBUG ONLY
+        utilities.randomScrollY();
         canvas.classList.add('loaded');
         notification.startWebsockets('note', {
             'create': {

@@ -1,5 +1,5 @@
 /* exported abstract */
-/* global dom, rosetta, thumbCutter */
+/* global api, dom, login, rosetta, thumbCutter, utilities */
 
 var abstract = (function () {
     'use strict';
@@ -23,14 +23,18 @@ var abstract = (function () {
         this.core.addEventListener('click', this.click.bind(this));
     };
 
+    var maxZ = 20;
+
     AbstractSlot.prototype.scrollToCenterOfScreen = function () {
         var cbr = this.el.getBoundingClientRect();
         var left = cbr.left + window.scrollX;
         var top = cbr.top + window.scrollY;
-        this.el.classList.add('highlight');
-        utilities.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2, function () {
-            this.el.classList.remove('highlight');
-        }.bind(this));
+        this.el.style.zIndex = maxZ++;
+        this.el.classList.remove('highlight');
+        setTimeout(function () {
+            this.el.classList.add('highlight');
+        }.bind(this), 0);
+        utilities.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2);
     };
 
     AbstractSlot.prototype.click = function () {
@@ -272,6 +276,6 @@ var abstract = (function () {
     return {
         Post: AbstractPost,
         Slot: AbstractSlot
-    }
+    };
 
 })();

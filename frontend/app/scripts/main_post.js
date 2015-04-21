@@ -4,7 +4,6 @@ var mainPost = (function () {
     'use strict';
 
     var canvas = document.getElementById('canvas-post');
-    var edit = document.getElementsByClassName('edit')[0];
 
     var slots = [];
     var posts = {};

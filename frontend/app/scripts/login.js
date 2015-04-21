@@ -51,7 +51,7 @@ var login = (function () {
                     initInfo();
                 } else {
                     if (window.confirm('Seems that we haven\'t prepared an account for you yet. Would you like to sign up for one right now?')) {
-                        window.open('https://docs.google.com/forms/d/1pQmfOBGru8nkKSf1bnU6zS6bWmNh5BsMPxx6ZH5p25Y/viewform?usp=send_form');
+                        window.location.replace('https://docs.google.com/forms/d/1pQmfOBGru8nkKSf1bnU6zS6bWmNh5BsMPxx6ZH5p25Y/viewform?usp=send_form');
                     }
                 }
             }, { 'token': token });

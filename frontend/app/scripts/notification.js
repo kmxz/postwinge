@@ -48,5 +48,5 @@ var notification = (function () {
         fromSelf: function (type, json) {
             currentHandlers[type].render(json, login.getUserId(), login.getDisplay());
         }
-    }
+    };
 })();

@@ -95,13 +95,21 @@ textarea.form-control {
   }
 }
 
+@keyframes highlight {
+  0% { transform: none; }
+  100% { transform: scale(1.5, 1.5); }
+}
+
 .post, .note-single {
-  transition: 2 * @duration; // this is for .highlight and .killed
   &.highlight {
-    // TODO
+    animation-name: highlight;
+    animation-duration: (2 * @duration);
+    animation-iteration-count: 2;
+    animation-direction: alternate;
   }
   &.killed {
     opacity: 0;
+    transition: (@duration * 4);
   }
 }
 
@@ -162,7 +170,7 @@ iframe { // for log-in
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 20;
+  z-index: 1020;
   box-shadow: -5px 0 5px -5px rgba(0, 0, 0, 0.5);
   color: #01252f;
 }
@@ -220,12 +228,12 @@ iframe { // for log-in
 #warning {
   width: 100%;
   position: fixed;
-  z-index: 1000;
+  z-index: 2000;
   display: none;
 }
 
 #shed {
-  z-index: 50;
+  z-index: 1050;
   width: 100%;
   height: 100%;
   position: fixed;
@@ -325,7 +333,7 @@ input[type=file] {
 }
 
 .cloned {
-  z-index: 100;
+  z-index: 1100;
   position: fixed;
   margin: 0; // for note-single
   .post-core, .left-arrow, .left-wing, .right-arrow, .right-wing, .post-extended, .post-proper, .post-bg, .edit {
