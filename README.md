@@ -16,6 +16,9 @@ Running environment:
 - Redis
 - MySQL
   - `grad.sql` for schema
+- Apache HTTP Server
+  - `apache2.sample.conf` for configuration sample
+  - any other HTTP server will also work
 
 Building tools required:
 - Grunt
