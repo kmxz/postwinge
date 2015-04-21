@@ -44,6 +44,6 @@ success_with_redis_publish('create', array(
   'post_id' => $post_id,
   'x_coord' => $legal_pos[0],
   'y_coord' => $legal_pos[1]
-), $user_id);
+), $user_id, 'post-create');
 
 ?>

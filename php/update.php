@@ -28,6 +28,6 @@ success_with_redis_publish('update', array(
   'revision_id' => $revision_id,
   'datetime' => $row[0],
   'text_content' => $content
-), $user_id);
+), $user_id, 'post-update');
 
 ?>

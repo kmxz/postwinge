@@ -8,12 +8,10 @@ var redis = require('redis').createClient();
 var WebSocketServer = require('ws').Server;
 var url = require('url');
 
-var types = ['post', 'note'];
-
 var log = {};
 var messages = {};
 
-types.forEach(function (type) {
+['post-create', 'post-update', 'note'].forEach(function (type) {
   var logFile = __dirname + '/../log/node_' + type + '.log';
   var logStream = fs.createWriteStream(logFile, { flags: 'a', encoding: 'utf8' });
   log[type] = function (content) {
@@ -32,12 +30,24 @@ types.forEach(function (type) {
 
 var wss = new WebSocketServer({ port: 8080, verifyClient: function (info, cb) {
   var u = url.parse(info.req.url);
-  info.req.channel = u.pathname.split('/')[1];
-  cb(u && (types.indexOf(info.req.channel) >= 0));
+  switch (u.pathname.split('/')[1]) {
+    case 'post':
+      info.req.channels = ['post-create', 'post-update'];
+      cb(true);
+      break;
+    case 'note':
+      info.req.channels = ['note'];
+      cb(true);
+      break;
+    default:
+      cb(false);
+  }
 }});
 
 wss.on('connection', function (ws) {
-  ws.send(JSON.stringify(messages[ws.upgradeReq.channel]));
+  ws.upgradeReq.channels.forEach(function (channel) {
+    ws.send(JSON.stringify(messages[channel]));
+  });
 });
 
 redis.on('message', function (channel, data) {
@@ -48,7 +58,7 @@ redis.on('message', function (channel, data) {
     messages.shift();
   }
   var legal = wss.clients.filter(function (client) {
-    return client.upgradeReq.channel === channel;
+    return client.upgradeReq.channels.indexOf(channel) >= 0;
   });
   legal.forEach(function (client) {
     client.send(JSON.stringify([parsed]));

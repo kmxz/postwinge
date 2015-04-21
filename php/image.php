@@ -18,6 +18,6 @@ if (!$stmt->execute()) { panic('SQL Error!'); }
 success_with_redis_publish('image', array(
   'post_id' => $legal_post_id,
   'image' => $image
-), $user_id);
+), $user_id, 'post-update');
 
 ?>

@@ -25,6 +25,7 @@ var login = (function () {
     };
 
     button.addEventListener('click', function () {
+        button.classList.add('disabled');
         if (iframe) {
             iframe.parentNode.removeChild(iframe);
         }

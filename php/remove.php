@@ -24,6 +24,6 @@ $stmt->bind_param('i', $legal_post_id);
 if (!$stmt->execute()) { panic('SQL Error!'); }
 success_with_redis_publish('remove', array(
   'post_id' => $legal_post_id
-), $user_id);
+), $user_id, 'post-create');
 
 ?>
