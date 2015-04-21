@@ -18,9 +18,9 @@ var abstract = (function () {
     };
 
     AbstractSlot.prototype.listen = function () {
-        this.core.addEventListener('mouseenter', this.mouseenter.bind(this));
-        this.core.addEventListener('mouseleave', this.mouseleave.bind(this));
-        this.core.addEventListener('click', this.click.bind(this));
+        this.core.parentNode.addEventListener('mouseenter', this.mouseenter.bind(this));
+        this.core.parentNode.addEventListener('mouseleave', this.mouseleave.bind(this));
+        this.core.parentNode.addEventListener('click', this.click.bind(this));
     };
 
     var lastHighlight = null;
@@ -154,6 +154,7 @@ var abstract = (function () {
         setTimeout(function () {
             this.el.parentNode.removeChild(this.el);
             shed.style.display = 'none';
+            document.body.classList.remove('modal-open');
         }.bind(this), rosetta.duration.val * 2000);
     };
 

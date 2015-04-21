@@ -4,8 +4,8 @@
 @canvasGrossWidth: ((@postGrossWidth + @postProperWidth + 2 * @postMarginX) * @numOfPostsX - @postMarginX + @postWingWidth + 2 * @canvasPadding);
 @canvasGrossHeight: ((@postHeight + @postMarginY) * @numOfPostsY / 2 - @postMarginY / 2 + @postHeight / 2 + 2 * @canvasPadding);
 
-@postDefaultBackground: rgba(249,249,249,0.6);
-@postActiveBackground: rgba(249,249,249,0.8);
+@postDefaultBackground: rgba(249,249,249,0.75);
+@postActiveBackground: rgba(249,249,249,0.9);
 
 @sidebarWidth: 280px;
 
@@ -18,6 +18,7 @@ body {
   background-image: url(../images/bg.jpg);
   background-size: cover;
   background-attachment: fixed;
+  user-select: none;
 }
 
 textarea.form-control {
@@ -46,7 +47,6 @@ textarea.form-control {
 #canvas-post, #canvas-note {
   display: none;
   opacity: 0;
-  user-select: none;
   &.loaded {
     opacity: 1;
     transition: @duration;
@@ -60,7 +60,6 @@ textarea.form-control {
   display: none;
   z-index: 10;
   opacity: 0;
-  user-select: none;
 }
 
 .post {
@@ -178,12 +177,12 @@ iframe { // for log-in
   height: 100%;
   width: @sidebarWidth;
   padding: 20px;
-  background: linear-gradient(to right, rgba(204,204,204,0.65) 0%, rgba(204,204,204,0.95) 100%);
+  background: linear-gradient(to right, rgba(204,204,204,0.75) 0%, rgba(204,204,204,0.9) 100%);
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 20;
-  box-shadow: -5px 0 5px -5px rgba(0, 0, 0, 0.5);
+  z-index: 25;
+  box-shadow: -5px 0 5px 0 rgba(0, 0, 0, 0.25);
   color: #01252f;
 }
 
@@ -245,7 +244,7 @@ iframe { // for log-in
 }
 
 #shed {
-  z-index: 25;
+  z-index: 30;
   width: 100%;
   height: 100%;
   position: fixed;
@@ -264,15 +263,12 @@ input[type=file] {
   display: inline;
 }
 
-#canvas-note {
-  padding-left: @postGrossWidth;
-}
-
 #note-heads {
   width: @postGrossWidth;
   position: absolute;
   left: 0;
   top: 0;
+  z-index: 20;
 }
 
 .target-head, .target {
@@ -308,6 +304,11 @@ input[type=file] {
     display: block;
     padding-top: 2px;
   }
+}
+
+#note-bodies {
+  width: 100%;
+  padding-left: @postGrossWidth;
 }
 
 .target {
@@ -350,7 +351,7 @@ input[type=file] {
 }
 
 .cloned {
-  z-index: 30;
+  z-index: 35;
   position: fixed;
   margin: 0; // for note-single
   .post-core, .left-arrow, .left-wing, .right-arrow, .right-wing, .post-extended, .post-proper, .post-bg, .edit {

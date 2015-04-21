@@ -47,11 +47,6 @@ var mainNote = (function() {
             window.alert('Please log in to enjoy this feature.');
             return;
         }
-        /*
-        * make a fake one with no ID, and do not put it into posts
-        * user submit, if success, remove fake one before adding real one
-        * user cancel, remove fake one
-        * */
         var fakeSlot = new NoteSlot(this, null);
         fakeSlot.el.classList.add('hover');
         fakeSlot.popout(fakeSlot.startEdit.bind(fakeSlot));
@@ -178,7 +173,7 @@ var mainNote = (function() {
             var content = ta.value.trim();
             setBusy();
             api.request('noting', function (data) {
-                notification.fromSelf('create', data);
+                notification.fromSelf(data);
                 this.hijack(notes[data['note_id']]);
                 this.popin();
             }.bind(this), {
@@ -221,7 +216,7 @@ var mainNote = (function() {
                 },
                 message: function (data) {
                     var post = notes[data['note_id']];
-                    return ['posted to ', post.slot.target.display, (post.image ? 'with a picture' : null) ,': ', post.createPostnameSpan(post.excerpt()), '.'];
+                    return ['posted to ', post.slot.target.display, (post.image ? ' with a picture' : null) ,': ', post.createPostnameSpan(post.excerpt()), '.'];
                 }
             }
         });
@@ -241,6 +236,9 @@ var mainNote = (function() {
                 load();
             });
             canvas.style.display = 'block';
+            window.addEventListener('scroll', function () {
+                heads.style.left = window.scrollX + 'px';
+            });
         }
     };
 })();

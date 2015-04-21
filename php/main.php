@@ -69,14 +69,15 @@ function get_display($user_id) {
 }
 
 function success_with_redis_publish($type, $data, $user_id, $channel) {
-  redis()->publish($channel, json_encode(array(
+  $full = array(
     'type' => $type,
     'time' => time(),
     'data' => $data,
     'user_id' => $user_id,
     'display' => get_display($user_id)
-  )));
-  success($data);
+  );
+  redis()->publish($channel, json_encode($full));
+  success($full);
 }
 
 ?>

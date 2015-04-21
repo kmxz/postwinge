@@ -1,5 +1,5 @@
 /* global mainPost, mainNote */
-window.onload = function () { // use window.onload for compatibility concern
+(function () { // use window.onload for compatibility concern
     'use strict';
 
     var post = document.getElementById('post-board');
@@ -28,4 +28,4 @@ window.onload = function () { // use window.onload for compatibility concern
         default:
             window.location.replace(baseUrl);
     }
-};
+})();

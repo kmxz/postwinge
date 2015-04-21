@@ -52,7 +52,7 @@ var mainPost = (function () {
         var extended = false;
         api.request('create', function (data) {
             success = true;
-            notification.fromSelf('create', data);
+            notification.fromSelf(data);
             if (extended) {
                 this.post.startEdit();
             }
@@ -141,7 +141,7 @@ var mainPost = (function () {
                 setPb(pb4);
                 imgPanel.classList.remove('panel-primary');
                 imgPanel.classList.add('panel-success');
-                notification.fromSelf('image', data);
+                notification.fromSelf(data);
             }, { 'post_id': instance.postId, 'image': file }, function () {
                 setPb(pb1);
             });
@@ -207,7 +207,7 @@ var mainPost = (function () {
             if (!content.length) { this.slot.popin(); return; }
             setBusy();
             api.request('update', function (data) {
-                notification.fromSelf('update', data);
+                notification.fromSelf(data);
                 this.slot.popin();
             }.bind(this), {
                 'post_id': this.postId,
@@ -225,7 +225,7 @@ var mainPost = (function () {
         var success = opt_success || function () {};
         var fail = opt_fail || function () {};
         api.request('remove', function (data) {
-            notification.fromSelf('remove', data);
+            notification.fromSelf(data);
             success();
         }.bind(this), {
             'post_id': this.postId

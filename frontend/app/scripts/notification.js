@@ -1,5 +1,5 @@
 /* exported notification */
-/* global api, dom, login */
+/* global api, dom */
 var notification = (function () {
     'use strict';
 
@@ -26,13 +26,17 @@ var notification = (function () {
 
     var ul = document.getElementById('activities');
 
+    var direct = function (item) {
+        currentHandlers[item['type']].render(item['data'], item['user_id'], item['display']);
+    };
+
     return {
         startWebsockets: function (path, handlers) {
             currentHandlers = handlers;
             var ws = new WebSocket(api.websockets + path);
             ws.onmessage = function (ev) {
                 JSON.parse(ev.data).forEach(function (item) {
-                    currentHandlers[item['type']].render(item['data'], item['user_id'], item['display']);
+                    direct(item);
                     var msg = currentHandlers[item['type']].message;
                     if (msg) {
                         ul.insertBefore(dom.create('li', null, [
@@ -45,8 +49,6 @@ var notification = (function () {
                 });
             };
         },
-        fromSelf: function (type, json) {
-            currentHandlers[type].render(json, login.getUserId(), login.getDisplay());
-        }
+        fromSelf: direct
     };
 })();
