@@ -29,6 +29,7 @@ if (isset($_GET['post_id'])) {
           `post_free`.`y_coord`,
           `post_free`.`image`,
           `post_free`.`user_id`,
+          `post_free`.`datetime`,
           `user`.`display`
         FROM
           `post_free`
