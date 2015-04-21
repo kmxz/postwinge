@@ -68,7 +68,7 @@ var mainNote = (function() {
 
     utilities.inherits(NoteSlot, abstract.Slot);
 
-    NoteSlot.prototype.shouldCut = false;
+    NoteSlot.prototype.isNotNote = false;
 
     NoteSlot.prototype.hijack = function (note) {
         note.slot.el.parentNode.removeChild(note.slot.el);
@@ -174,7 +174,7 @@ var mainNote = (function() {
             setBusy();
             api.request('noting', function (data) {
                 notification.fromSelf(data);
-                this.hijack(notes[data['note_id']]);
+                this.hijack(notes[data['data']['note_id']]);
                 this.popin();
             }.bind(this), {
                 'text_content': content,

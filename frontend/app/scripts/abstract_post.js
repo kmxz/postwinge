@@ -18,9 +18,9 @@ var abstract = (function () {
     };
 
     AbstractSlot.prototype.listen = function () {
-        this.core.parentNode.addEventListener('mouseenter', this.mouseenter.bind(this));
-        this.core.parentNode.addEventListener('mouseleave', this.mouseleave.bind(this));
-        this.core.parentNode.addEventListener('click', this.click.bind(this));
+        this.core.addEventListener('mouseenter', this.mouseenter.bind(this));
+        this.core.addEventListener('mouseleave', this.mouseleave.bind(this));
+        this.core.addEventListener('click', this.click.bind(this));
     };
 
     var lastHighlight = null;
@@ -42,14 +42,14 @@ var abstract = (function () {
     AbstractSlot.prototype.click = function () {
         if (this.post) {
             this.popout(this.post.renderFull.bind(this.post));
-        } else {
+        } else if (this.isNotNote) {
             this.newPost();
         }
     };
 
     AbstractSlot.prototype.mouseenter = function () {
         this.el.classList.add('hover');
-        if (!this.post) {
+        if (this.isNotNote && !this.post) {
             this.core.parentNode.appendChild(edit);
             edit.style.display = 'block';
         }
@@ -158,7 +158,7 @@ var abstract = (function () {
         }.bind(this), rosetta.duration.val * 2000);
     };
 
-    AbstractSlot.prototype.shouldCut = null; // warning: this should be overridden by children
+    AbstractSlot.prototype.isNotNote = null; // warning: this should be overridden by children
 
     var AbstractPost = function (textContent, display, datetime, image) {
         this.textContent = textContent;
@@ -219,7 +219,7 @@ var abstract = (function () {
             this.slot.core.parentNode.insertBefore(this.slot.postBgEl, this.slot.core);
             thumbCutter(api.image(this.image, true), function (dataUrl) {
                 this.slot.postBgEl.style.backgroundImage = 'url(\'' + dataUrl + '\')';
-            }.bind(this), this.slot.shouldCut);
+            }.bind(this), this.slot.isNotNote);
             if (this.textContent && this.textContent.length) {
                 imageText(this.slot.core, this.textContent);
             }

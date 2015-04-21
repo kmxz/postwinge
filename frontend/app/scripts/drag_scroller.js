@@ -16,7 +16,7 @@
         mouseDown = true;
         baseEventX = e.pageX; baseEventY = e.pageY;
         baseX = window.scrollX; baseY = window.scrollY;
-        e.target.addEventListener('click', muteOnce);
+        document.documentElement.addEventListener('click', muteOnce, true);
     });
     document.documentElement.addEventListener('mousemove', function (e) {
         if (document.body.classList.contains('modal-open')) {
@@ -34,13 +34,13 @@
 
     toggle.addEventListener('click', function () {
         if (toggle.checked) {
-            localStorage.setItem('dragToScroll', true);
+            localStorage.removeItem('dragToScrollDisabled');
         } else {
-            localStorage.removeItem('dragToScroll');
+            localStorage.setItem('dragToScrollDisabled', true);
         }
     });
 
-    if (localStorage.getItem('dragToScroll')) {
+    if (!localStorage.getItem('dragToScrollDisabled')) {
         toggle.checked = true;
     }
 })();
