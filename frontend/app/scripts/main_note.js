@@ -154,7 +154,7 @@ var mainNote = (function() {
             saveBtn.classList.remove('disabled');
         };
         var imgUpload = createFileUpload();
-        dom.put(this.popoutExtended, [dom.create('form', null, dom.create('fieldset', null, [
+        dom.put(this.popoutExtended, [dom.create('form', null, [
             dom.create('legend', null, 'Write a post to ' + this.target.display),
             imgUpload.el,
             dom.create('div', { className: 'form-group' }, ta),
@@ -162,7 +162,7 @@ var mainNote = (function() {
                 anonymous,
                 ' Post anonymously'
             ]))
-        ])), dom.create('div', { className: 'bottom-btns' }, [ cancelBtn, ' ', saveBtn ])]);
+        ]), dom.create('div', { className: 'bottom-btns' }, [ cancelBtn, ' ', saveBtn ])]);
         cancelBtn.addEventListener('click', function () {
             if (window.confirm('Sure? The content will be discarded if you do so.')) {
                 this.popAbort();

@@ -186,11 +186,11 @@ var mainPost = (function () {
             cancelBtn.classList.remove('disabled');
             saveBtn.classList.remove('disabled');
         };
-        dom.put(this.slot.popoutExtended, [dom.create('form', null, dom.create('fieldset', null, [
-            dom.create('legend', null, 'Edit post'),
+        dom.put(this.slot.popoutExtended, [dom.create('form', null, [
+            dom.create('h4', null, 'Edit post'),
             this.createFileUpload(),
             dom.create('div', { className: 'form-group' }, ta),
-        ])), dom.create('div', { className: 'bottom-btns' }, [ cancelBtn, ' ', saveBtn ])]);
+        ]), dom.create('div', { className: 'bottom-btns' }, [ cancelBtn, ' ', saveBtn ])]);
         cancelBtn.addEventListener('click', function () {
             if (window.confirm('Sure? ' + (this.nonEmpty() ? 'All changes will be lost' : 'The post will be deleted') + ' if you do so.')) {
                 if (this.nonEmpty()) {

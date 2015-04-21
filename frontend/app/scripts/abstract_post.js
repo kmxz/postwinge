@@ -250,9 +250,9 @@ var abstract = (function () {
                 window.open(api.image(this.image));
             }.bind(this));
         }
-        dom.put(this.slot.popoutExtended, dom.create('form', null, dom.create('fieldset', null, [
-            dom.create('legend', null, 'Post details'),
-            dom.create('div', { className: ['panel', 'panel-default', 'max-80'] }, dom.create('div', { className: 'panel-body' }, [
+        dom.put(this.slot.popoutExtended, dom.create('form', null, [
+            dom.create('h4', null, 'Post details'),
+            dom.create('div', { className: ['panel', 'panel-default'] }, dom.create('div', { className: 'panel-body' }, [
                 'This post is published by ',
                 dom.create('span', { className: 'name' }, this.display || 'anonymous user'),
                 ' on ',
@@ -261,7 +261,7 @@ var abstract = (function () {
             imgEl,
             dom.create('div', null, dom.nl2p(this.textContent)),
             dom.create('div', { className: 'bottom-btns' }, editBtn ? [ editBtn, ' ', closeBtn ] : closeBtn)
-        ])));
+        ]));
     };
 
     AbstractPost.prototype.excerpt = function () {
