@@ -30,8 +30,8 @@ var utilities = (function () {
         scrollTo: function (x, y, opt_callback) {
             document.body.style.pointerEvents = 'none';
             var callback = opt_callback || function () {};
-            var x0 = window.scrollX;
-            var y0 = window.scrollY;
+            var x0 = window.pageXOffset;
+            var y0 = window.pageYOffset;
             var dx = clipScrollX(x) - x0; var dy = clipScrollY(y) - y0;
             var duration = rosetta.duration.val * 2 * 1000;
             var sTime = null;

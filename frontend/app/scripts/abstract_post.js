@@ -27,8 +27,8 @@ var abstract = (function () {
 
     AbstractSlot.prototype.scrollToCenterOfScreen = function () {
         var cbr = this.el.getBoundingClientRect();
-        var left = cbr.left + window.scrollX;
-        var top = cbr.top + window.scrollY;
+        var left = cbr.left + window.pageXOffset;
+        var top = cbr.top + window.pageYOffset;
         utilities.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2);
         if (lastHighlight) {
             lastHighlight.classList.remove('highlight');

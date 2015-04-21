@@ -41,6 +41,7 @@ var thumbCutter = (function () {
 
     return function (imgSrc, callback, clip) {
         var img = new Image();
+        img.crossOrigin = 'Anonymous'; // FIXME for debug only
         img.addEventListener('load', function () {
             (clip ?  clipedContext : fullContext).drawImg(img, callback);
         });

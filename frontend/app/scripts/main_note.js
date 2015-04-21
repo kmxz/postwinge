@@ -237,7 +237,7 @@ var mainNote = (function() {
             });
             canvas.style.display = 'block';
             window.addEventListener('scroll', function () {
-                heads.style.left = window.scrollX + 'px';
+                heads.style.left = window.pageXOffset + 'px';
             });
         }
     };

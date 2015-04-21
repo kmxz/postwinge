@@ -5,7 +5,9 @@
     var mouseDown = false;
     var baseX, baseY, baseEventX, baseEventY;
     var muteOnce = function (e) {
-        if (Math.abs(baseX - window.scrollX) > 15 || Math.abs(baseY - window.scrollY) > 15) {
+        var dx = baseX - window.pageXOffset;
+        var dy = baseY - window.pageYOffset
+        if (dx * dx + dy * dy >= 100) { // for distance >= 10px, treat as drag, mute click
             e.preventDefault();
             e.stopPropagation();
         }
@@ -15,7 +17,7 @@
         if (!toggle.checked) { return; }
         mouseDown = true;
         baseEventX = e.pageX; baseEventY = e.pageY;
-        baseX = window.scrollX; baseY = window.scrollY;
+        baseX = window.pageXOffset; baseY = window.pageYOffset;
         document.documentElement.addEventListener('click', muteOnce, true);
     });
     document.documentElement.addEventListener('mousemove', function (e) {
@@ -24,8 +26,8 @@
         }
         if (!mouseDown) { return; }
         window.scrollTo(
-            window.scrollX + baseEventX - e.pageX ,
-            window.scrollY + baseEventY - e.pageY
+            window.pageXOffset + baseEventX - e.pageX ,
+            window.pageYOffset + baseEventY - e.pageY
         );
     });
     document.documentElement.addEventListener('mouseup', function () {

@@ -50,6 +50,14 @@ var mainPost = (function () {
         }
         var success = false;
         var extended = false;
+        this.popout(function () {
+            if (success) {
+                this.post.startEdit();
+            } else {
+                extended = true;
+                dom.put(this.popoutExtended, dom.create('div', {className: ['alert alert-primary']}, 'Please wait...'));
+            }
+        }.bind(this));
         api.request('create', function (data) {
             success = true;
             notification.fromSelf(data);
@@ -59,17 +67,7 @@ var mainPost = (function () {
         }.bind(this), {
             'x': this.x,
             'y': this.y
-        }, function () {
-            this.popin();
-        }.bind(this));
-        this.popout(function () {
-            if (success) {
-                this.post.startEdit();
-            } else {
-                extended = true;
-                dom.put(this.popoutExtended, dom.create('div', {className: ['alert alert-primary']}, 'Please wait...'));
-            }
-        }.bind(this));
+        }, this.popin.bind(this));
     };
 
     Slot.prototype.getLocationAndSet = function () {
