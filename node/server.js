@@ -1,5 +1,5 @@
 // read messages from Redis (sent by php), and forward to all clients via Websockets.
-// each client will receive 20 previous messages on the beginning on connection.
+// each client will receive 25 previous messages on the beginning on connection.
 // caution: this service should NOT be stopped as the results will be kept in memory w/o any persistence. nor will Redis keep a persisted record of messages.
 // inspired by http://www.technology-ebay.de/the-teams/mobile-de/blog/connecting-php-and-node-with-redis-pub-sub-and-sockjs.html
 
@@ -22,7 +22,7 @@ types.forEach(function (type) {
   };
   messages[type] = [];
   try {
-    messages[type] = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; }).slice(-20).map(function (line) { return JSON.parse(line); });
+    messages[type] = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; }).slice(-25).map(function (line) { return JSON.parse(line); });
     console.log(type + ': ' + messages[type].length + ' previous entries imported from log.');
   } catch (e) {
     console.log(type + ': ' + 'No previous log imported.');
@@ -44,7 +44,7 @@ redis.on('message', function (channel, data) {
   log[channel](data);
   var parsed = JSON.parse(data);
   messages[channel].push(parsed);
-  if (messages.length > 20) {
+  if (messages.length > 25) {
     messages.shift();
   }
   var legal = wss.clients.filter(function (client) {

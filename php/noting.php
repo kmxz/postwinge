@@ -2,6 +2,7 @@
 
 require_once('main.php');
 require_once('auth.php');
+require_once('image_upload.php');
 
 if (!isset($_POST['target_id'])) {
   panic('No target id specified!');
@@ -21,9 +22,9 @@ $image = NULL;
 if (isset($_FILES['image'])) {
   $image = image_upload('image');
 }
-$anonymous = filter_var($_POST['anonymous'], FILTER_VALIDATE_BOOLEAN);
+$anonymous = (int)(filter_var($_POST['anonymous'], FILTER_VALIDATE_BOOLEAN));
 $stmt = mysqli()->prepare('INSERT INTO `sticky_note` (`target_id`, `user_id`, `text_content`, `image`, `datetime`, `anonymous`) VALUES (?, ?, ?, ?, NOW(), ?)');
-$stmt->bind_param('iissi', $target_id, $user_id, $content, $image, $anonymous ? 1 : 0);
+$stmt->bind_param('iissi', $target_id, $user_id, $content, $image, $anonymous);
 if (!$stmt->execute()) { panic('SQL Error!'); }
 $note_id = $stmt->insert_id;
 $stmt = mysqli()->prepare('SELECT `datetime` FROM `sticky_note` WHERE `note_id` = ?');
