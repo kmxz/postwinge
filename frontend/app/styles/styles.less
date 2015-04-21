@@ -74,38 +74,6 @@ textarea.form-control {
     background: @postDefaultBackground;
     box-shadow: 0 5px 5px -5px rgba(0, 0, 0, 0.5), 0 -5px 5px -5px rgba(0, 0, 0, 0.5);
     position: relative;
-    .post-bg {
-      width: @postGrossWidth;
-      height: @postHeight;
-      position: absolute;
-      left: calc(50% - (@postGrossWidth / 2));
-      top: 0;
-      background-size: cover;
-    }
-    .post-core {
-      width: @postProperWidth;
-      height: @postHeight;
-      position: relative;
-      margin: auto;
-      .text-content {
-        width: @postProperWidth;
-        overflow-x: hidden;
-        display: table-cell;
-        line-height: 150%;
-        vertical-align: middle;
-        word-break: break-all;
-        color: #333333;
-      }
-      .image-text {
-        color: #141414;
-        position: absolute;
-        bottom: 0;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: @postProperWidth;
-        overflow: hidden;
-      }
-    }
   }
   .right-arrow {
     left: 100%;
@@ -127,51 +95,42 @@ textarea.form-control {
   }
 }
 
-.post.cloned {
-  z-index: 100;
-  position: fixed;
-  .post-core, .left-arrow, .right-arrow, .post-extended, .post-proper, .post-bg, .edit {
-    transition: @duration;
+.post-proper, .note-single {
+  .post-bg {
+    width: @postGrossWidth;
+    height: @postHeight;
+    position: absolute;
+    left: calc(50% - (@postGrossWidth / 2));
+    top: 0;
+    background-size: cover;
   }
-  .post-extended {
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    pointer-events: none;
-    margin-top: -@postHeight;
-    padding: 20px 20px 56px 20px;
-    overflow: auto;
-    .bottom-btns {
-      text-align: center;
+  .post-core {
+    width: @postProperWidth;
+    height: @postHeight;
+    position: relative;
+    margin: auto;
+    .text-content {
+      width: 100%;
+      overflow-x: hidden;
+      display: table-cell;
+      line-height: 150%;
+      vertical-align: middle;
+      word-break: break-all;
+      color: #333333;
+    }
+    .image-text {
+      color: #141414;
       position: absolute;
-      width: calc(100% - 40px);
-      bottom: 20px;
-    }
-    .content-img {
-      max-width: 80%;
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
-  }
-  &.animate-stage1 {
-    .post-core, .post-bg, .edit {
-      opacity: 0;
-    }
-    .left-arrow {
-      border-right-width: 0;
-    }
-    .right-arrow {
-      border-left-width: 0;
-    }
-  }
-  &.animate-stage2 {
-    .post-extended {
-      opacity: 1;
+      bottom: 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+      overflow: hidden;
     }
   }
 }
 
-iframe {
+iframe { // for log-in
   visibility: hidden;
   width: 0;
   height: 0;
@@ -227,6 +186,12 @@ iframe {
   display: none;
 }
 
+#compose {
+  display: none;
+  height: 40px;
+  text-align: center;
+}
+
 #activities {
   list-style: none;
   padding: 0;
@@ -269,23 +234,133 @@ input[type=file] {
   display: inline;
 }
 
-.target {
-  height: @postHeight;
+#canvas-note {
+  padding-left: @postGrossWidth;
+}
+
+#note-heads {
+  width: @postGrossWidth;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.target-head, .target {
   margin-top: 6px;
   &:first-child {
     margin-top: 0;
-  }
-  &.hover {
-    // TODO
   }
 }
 
 .target-head {
   height: @postHeight;
   width: @postGrossWidth;
-  display: inline-block;
+  background: rgba(0, 0, 0, 0.5);
+  vertical-align: middle;
+  overflow: hidden;
+  .target-name {
+    height: 40px;
+    padding-top: 16px;
+    line-height: 16px;
+    font-size: 20px;
+    color: #F9F9F9;
+    text-align: center;
+  }
+  .target-token {
+    height: 40px;
+    padding-top: 10px;
+    line-height: 14px;
+    font-size: 14px;
+    color: #CCCCCC;
+    text-align: center;
+  }
+  #compose {
+    display: block;
+    padding-top: 2px;
+  }
+}
+
+.target {
+  height: @postHeight;
+}
+
+.note-single {
+  width: @postProperWidth;
+  height: @postHeight;
   background: @postDefaultBackground;
-  line-height: @postHeight;
-  text-align: center;
-  color: #141414;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: (6px + @postWingWidth);
+  margin-right: @postWingWidth;
+  .left-wing {
+    right: 100%;
+  }
+  .right-wing {
+    left: 100%;
+  }
+  .left-wing, .right-wing {
+    background: @postDefaultBackground;
+    position: absolute;
+    width: @postWingWidth;
+    height: @postHeight;
+    top: 0;
+  }
+  &.hover {
+    background: @postActiveBackground;
+    .left-wing, .right-wing {
+      background: @postActiveBackground;
+    }
+  }
+}
+
+.cloned {
+  z-index: 100;
+  position: fixed;
+  margin: 0; // for note-single
+  .post-core, .left-arrow, .left-wing, .right-arrow, .right-wing, .post-extended, .post-proper, .post-bg, .edit {
+    transition: @duration;
+  }
+  .post-extended {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    margin-top: -@postHeight;
+    padding: 20px 20px 56px 20px;
+    overflow: auto;
+    .bottom-btns {
+      text-align: center;
+      position: absolute;
+      width: calc(100% - 40px);
+      bottom: 20px;
+    }
+    .content-img {
+      max-width: 80%;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+  }
+  &.animate-stage1 {
+    .post-core, .post-bg, .edit {
+      opacity: 0;
+    }
+    .left-arrow {
+      border-right-width: 0;
+    }
+    .left-wing {
+      width: 0;
+    }
+    .right-arrow {
+      border-left-width: 0;
+    }
+    .right-wing {
+      width: 0;
+    }
+  }
+  &.animate-stage2 {
+    .post-extended {
+      opacity: 1;
+    }
+  }
 }

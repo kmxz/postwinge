@@ -35,9 +35,14 @@ If you want to hack this page, just run "hack()" in the console!
       </div>
     </div>
     <div id="canvas-post"></div>
-    <div id="canvas-note"></div>
+    <div id="canvas-note">
+      <div id="note-heads"></div>
+      <div id="note-bodies"></div>
+    </div>
     <div id="shed"></div>
-    <div class="edit">
+    <div class="edit"></div>
+    <div id="compose">
+      <button id="compose-btn" class="btn btn-sm btn-default">Post</button>
     </div>
     <!-- build:js({app,.tmp}) scripts/scripts.js -->
     <script src="scripts/modernizr.js"></script>
@@ -48,6 +53,7 @@ If you want to hack this page, just run "hack()" in the console!
     <script src="scripts/api.js"></script>
     <script src="scripts/login.js"></script>
     <script src="scripts/notification.js"></script>
+    <script src="scripts/abstract_post.js"></script>
     <script src="scripts/main_post.js"></script>
     <script src="scripts/main_note.js"></script>
     <script src="scripts/hack.js"></script>

@@ -1,5 +1,5 @@
 /* exported notification */
-/* global api, dom */
+/* global api, dom, login */
 var notification = (function () {
     'use strict';
 
@@ -27,10 +27,8 @@ var notification = (function () {
     var ul = document.getElementById('activities');
 
     return {
-        setHandlers: function (handlers) {
+        startWebsockets: function (path, handlers) {
             currentHandlers = handlers;
-        },
-        startWebsockets: function (path) {
             var ws = new WebSocket(api.websockets + path);
             ws.onmessage = function (ev) {
                 JSON.parse(ev.data).forEach(function (item) {

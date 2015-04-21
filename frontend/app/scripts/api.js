@@ -49,7 +49,7 @@ var api = (function () {
             }
             if (config.method === 'post') {
                 if (!localStorage['ptSession']) {
-                    window.alert('Please login to enjoy this feature.');
+                    window.alert('Please log in to enjoy this feature.');
                     onerror();
                     return;
                 }

@@ -3,6 +3,7 @@
 var utilities = (function () {
     'use strict';
 
+    // for scrollTo
     var easeInOutCubic = function (t) { // http://gizma.com/easing/
         t *= 2;
         if (t < 1) { return t * t * t / 2; }
@@ -37,6 +38,9 @@ var utilities = (function () {
             };
             window.requestAnimationFrame(anim);
         },
+        randomScrollY: function () {
+            window.scrollTo(0, Math.random() * (document.documentElement.scrollHeight - document.documentElement.clientHeight));
+        },
         forEach: function (object, callback) {
             var i;
             for (i in object) {
@@ -44,6 +48,13 @@ var utilities = (function () {
                     callback(object[i], i);
                 }
             }
+        },
+        inherits: function(childCtor, parentCtor) { // modified from goog.inherits
+            var TempCtor = function () {};
+            TempCtor.prototype = parentCtor.prototype;
+            childCtor.prototype = new TempCtor();
+            childCtor.prototype.constructor = childCtor;
+            childCtor.prototype.super = parentCtor.prototype.constructor;
         }
     };
 })();
