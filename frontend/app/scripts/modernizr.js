@@ -32,6 +32,10 @@
             div.style.cssText = 'width: calc(10px)';
             return !!div.style.length;
         },
+        'pointerEvents': function () {
+            var div = document.createElement('div');
+            return ('pointerEvents' in div.style);
+        },
         'styleproperty': function () {
             var div = document.createElement('div');
             return ('removeProperty' in div.style);
@@ -79,7 +83,7 @@
             return true;
         }
         return false;
-    }
+    };
     var mobile = document.getElementById('mobile-warning');
     if (isMobile()) {
         mobile.style.display = 'block';
