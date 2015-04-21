@@ -4,6 +4,7 @@ var notification = (function () {
     'use strict';
 
     var currentHandlers = {};
+    var ws = null;
 
     var getDay = function (date) {
         return Math.floor((date.getTime()  - date.getTimezoneOffset() * 60 * 1000) / (24 * 60 * 60 * 1000));
@@ -30,10 +31,16 @@ var notification = (function () {
         currentHandlers[item['type']].render(item['data'], item['user_id'], item['display']);
     };
 
+    window.addEventListener('beforeunload', function () {
+       if (ws) {
+           ws.close();
+       }
+    });
+
     return {
-        startWebsockets: function (path, handlers) {
+        startWebsockets: function (path, handlers) { // noticeL currently only support one ws connection
             currentHandlers = handlers;
-            var ws = new WebSocket(api.websockets + path);
+            ws = new WebSocket(api.websockets + path);
             ws.onmessage = function (ev) {
                 JSON.parse(ev.data).forEach(function (item) {
                     direct(item);

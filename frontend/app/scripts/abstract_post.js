@@ -252,7 +252,7 @@ var abstract = (function () {
         }
         dom.put(this.slot.popoutExtended, dom.create('form', null, dom.create('fieldset', null, [
             dom.create('legend', null, 'Post details'),
-            dom.create('div', { className: ['panel', 'panel-default'] }, dom.create('div', { className: 'panel-body' }, [
+            dom.create('div', { className: ['panel', 'panel-default', 'max-80'] }, dom.create('div', { className: 'panel-body' }, [
                 'This post is published by ',
                 dom.create('span', { className: 'name' }, this.display || 'anonymous user'),
                 ' on ',

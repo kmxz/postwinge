@@ -25,7 +25,6 @@ var login = (function () {
     };
 
     button.addEventListener('click', function () {
-        button.classList.add('disabled');
         if (iframe) {
             iframe.parentNode.removeChild(iframe);
         }
@@ -45,6 +44,7 @@ var login = (function () {
 
     return {
         login: function (token) {
+            button.classList.add('disabled');
             api.request('login', function (key) {
                 if (key) {
                     localStorage.setItem('ptSession', key);
@@ -55,7 +55,9 @@ var login = (function () {
                         window.location.replace('https://docs.google.com/forms/d/1pQmfOBGru8nkKSf1bnU6zS6bWmNh5BsMPxx6ZH5p25Y/viewform?usp=send_form');
                     }
                 }
-            }, { 'token': token });
+            }, { 'token': token }, function () {
+                button.classList.remove('disabled');
+            });
         },
         getUserId: function () {
             return currentUserId;
