@@ -26,7 +26,7 @@ var mainPost = (function () {
 
     utilities.inherits(Slot, abstract.Slot);
 
-    Slot.prototype.shouldCut = true;
+    Slot.prototype.isNotNote = true;
 
     var getEmptyPost = function () {
         var emptyPost = null;
