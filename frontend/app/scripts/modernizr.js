@@ -65,7 +65,28 @@
             }
         }
     }
+    var warn = document.getElementById('warning');
     if (!support) {
-        document.getElementById('warning').style.display = 'block';
+        warn.style.display = 'block';
+        return;
+    }
+    warn.parentNode.removeChild(warn);
+    var isMobile = function () {
+        if (navigator.userAgent.toLowerCase().indexOf('mobile') >= 0) {
+            return true;
+        }
+        if (window.innerWidth < 640 || window.innerHeight < 360) {
+            return true;
+        }
+        return false;
+    }
+    var mobile = document.getElementById('mobile-warning');
+    if (isMobile()) {
+        mobile.style.display = 'block';
+        mobile.addEventListener('click', function () {
+            mobile.parentNode.removeChild(mobile);
+        });
+    } else {
+        mobile.parentNode.removeChild(mobile);
     }
 })();
