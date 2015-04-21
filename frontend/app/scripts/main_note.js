@@ -1,5 +1,5 @@
 /* exported mainNote */
-/* global abstract, api, dom, login, notification, utilities */
+/* global abstract, api, dom, login, notification, rosetta, utilities */
 var mainNote = (function() {
     'use strict';
 
@@ -21,6 +21,7 @@ var mainNote = (function() {
         this.head = dom.create('div', { className: 'target-head' }, [displayEl, tokenEl]);
         this.body = dom.create('div', { className: 'target' });
         this.token = token;
+        this.tokenForFullMatch = token.toUpperCase().replace(/[^A-Z]/g, '');
         this.display = display;
         this.head.addEventListener('mouseenter', this.mouseenter.bind(this));
         this.head.addEventListener('mouseleave', this.mouseleave.bind(this));
@@ -55,6 +56,13 @@ var mainNote = (function() {
         var fakeSlot = new NoteSlot(this, null);
         fakeSlot.el.classList.add('hover');
         fakeSlot.popout(fakeSlot.startEdit.bind(fakeSlot));
+    };
+
+    Target.prototype.scrollTo = function () {
+        var cbr = this.head.getBoundingClientRect();
+        var left = cbr.left + window.pageXOffset;
+        var top = cbr.top + window.pageYOffset;
+        utilities.scrollTo(left, top);
     };
 
     var NoteSlot = function (target, note) {
@@ -201,6 +209,69 @@ var mainNote = (function() {
 
     utilities.inherits(Note, abstract.Post);
 
+    var kel = document.getElementById('key-hint');
+    var hintHint = document.getElementById('hint-hint');
+
+    var keyFindInit = function () {
+        var currentStr = '';
+        var killTimeout = null;
+        var kore = null;
+        var updateHint = function () {
+            if (hintHint) {
+                kel.removeChild(hintHint);
+                hintHint = null;
+            }
+            var match = null;
+            var isAtBeginning = false;
+            sortedTargets.forEach(function (target) {
+                if (!isAtBeginning) {
+                    switch (target.tokenForFullMatch.indexOf(currentStr)) {
+                        case -1: // does no contain at all
+                            break;
+                        case 0: // start with currentStr
+                            match = target;
+                            isAtBeginning = true;
+                            break;
+                        default: // contains currentStr in middle
+                            if (!match) {
+                                match = target;
+                            }
+                    }
+                }
+            });
+            if (match) {
+                match.scrollTo();
+            }
+            if (kore) {
+                kel.removeChild(kore);
+            }
+            kore = dom.create('div', { className: match ? 'hint-core' : ['hint-core', 'not-found'] }, currentStr);
+            kel.appendChild(kore);
+            setTimeout(function () {
+                kore.classList.add('killed');
+            }, 10);
+            if (killTimeout) {
+                clearTimeout(killTimeout);
+            }
+            killTimeout = setTimeout(function () {
+                currentStr = '';
+            }, 2 * rosetta.duration.val * 1000);
+        };
+        document.documentElement.addEventListener('keydown', function (e) {
+            if (document.getElementsByClassName('cloned').length) {
+                return; // disable when notes popped-out
+            }
+            if (e.keyCode >= 65 && e.keyCode <= 90) { // a - z
+                currentStr += String.fromCharCode(e.keyCode).toUpperCase();
+            } else if (e.keyCode === 8 || e.keyCode === 46) { // backspace / delete
+                currentStr = currentStr.substring(0, currentStr.length - 1);
+            } else {
+                return;
+            }
+            updateHint();
+        });
+    };
+
     var load = function () {
         if (!loadedOne) {
             loadedOne = true;
@@ -212,6 +283,7 @@ var mainNote = (function() {
         });
         utilities.randomScrollY();
         canvas.classList.add('loaded');
+        hintHint.classList.add('killed');
         notification.startWebsockets('note', {
             'create': {
                 render: function (data, user_id, display) {
@@ -227,6 +299,7 @@ var mainNote = (function() {
                 }
             }
         });
+        keyFindInit();
     };
 
     return {
@@ -237,7 +310,7 @@ var mainNote = (function() {
                    targets[target['user_id']] = new Target(target['user_id'], target['index_name'], target['display']);
                 });
                 sortedTargets = utilities.sort(targets, function (t1, t2) {
-                   t1.token.localeCompare(t2.token);
+                   return t1.token.localeCompare(t2.token);
                 });
                 sortedTargets.forEach(function (target) {
                    target.render();
@@ -249,6 +322,7 @@ var mainNote = (function() {
                 load();
             });
             canvas.style.display = 'block';
+            kel.style.display = 'block';
             window.addEventListener('scroll', function () {
                 heads.style.left = window.pageXOffset + 'px';
             });

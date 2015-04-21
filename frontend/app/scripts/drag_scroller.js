@@ -6,7 +6,7 @@
     var baseX, baseY, baseEventX, baseEventY;
     var muteOnce = function (e) {
         var dx = baseX - window.pageXOffset;
-        var dy = baseY - window.pageYOffset
+        var dy = baseY - window.pageYOffset;
         if (dx * dx + dy * dy >= 100) { // for distance >= 10px, treat as drag, mute click
             e.preventDefault();
             e.stopPropagation();

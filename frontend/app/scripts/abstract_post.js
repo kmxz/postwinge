@@ -62,8 +62,6 @@ var abstract = (function () {
         edit.style.display = 'none';
     };
 
-    var postProperWidth = (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val);
-
     AbstractSlot.prototype.setPopoutXToInitial = function (rect) {
         this.el.style.left = rect.left + 'px';
     };
@@ -154,6 +152,7 @@ var abstract = (function () {
         this.inAnimation = true;
         this.popoutExtended.style.pointerEvents = 'none';
         this.popoutDummy.parentNode.removeChild(this.popoutDummy); // remove immediately
+        this.el.style.removeProperty('transition');
         this.el.classList.add('killed');
         shed.classList.remove('shown');
         setTimeout(function () {

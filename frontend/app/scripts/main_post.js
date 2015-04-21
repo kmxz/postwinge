@@ -281,9 +281,6 @@ var mainPost = (function () {
                         },
                         message: function (data) {
                             var post = posts[data['post_id']];
-                            if (!post) {
-                                console.log(data);
-                            }
                             return [': ', post.createPostnameSpan(post.excerpt()), '.'];
                         }
                     },

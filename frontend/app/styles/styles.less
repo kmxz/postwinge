@@ -18,7 +18,7 @@ body {
   background-image: url(../images/bg.jpg);
   background-size: cover;
   background-attachment: fixed;
-
+  user-select: none;
 }
 
 textarea.form-control {
@@ -117,10 +117,6 @@ textarea.form-control {
     animation-iteration-count: 2;
     animation-direction: alternate;
     z-index: 15;
-  }
-  &.killed {
-    opacity: 0;
-    transition: (@duration * 4);
   }
 }
 
@@ -244,7 +240,7 @@ iframe { // for log-in
 }
 
 #shed {
-  z-index: 30;
+  z-index: 35;
   width: 100%;
   height: 100%;
   position: fixed;
@@ -351,7 +347,7 @@ input[type=file] {
 }
 
 .cloned {
-  z-index: 35;
+  z-index: 40;
   position: fixed;
   margin: 0; // for note-single
   .post-core, .left-arrow, .left-wing, .right-arrow, .right-wing, .post-extended, .bottom-btns, .post-proper, .post-bg, .edit { // .post-proper is needed as removing "hover" will need to change the background
@@ -409,4 +405,49 @@ input[type=file] {
       opacity: 1;
     }
   }
+}
+
+#key-hint {
+  position: fixed;
+  z-index: 30;
+  left: 0;
+  top: calc(50% - 60px);
+  height: 120px;
+  width: 100%;
+  pointer-events: none;
+  text-align: center;
+  display: none;
+
+  .hint-core {
+    height: 120px;
+    line-height: 120px;
+    display: inline-block;
+    padding: 0 32px;
+    background: rgba(1, 37, 47, 0.9);
+    box-shadow: 0 0 24px 4px rgba(0, 0, 0, 0.5);
+    color: #FFF;
+    font-size: 72px;
+    &.not-found {
+      color: #fa0000;
+    }
+  }
+
+  #hint-hint {
+    height: 60px;
+    line-height: 60px;
+    display: inline-block;
+    padding: 0 24px;
+    background: rgba(1, 37, 47, 0.9);
+    box-shadow: 0 0 24px 4px rgba(0, 0, 0, 0.5);
+    color: #FFF;
+    font-size: 16px;
+    position: relative;
+    top: 30px;
+  }
+}
+
+
+.killed {
+  opacity: 0;
+  transition: (2 * @duration);
 }
