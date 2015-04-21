@@ -18,8 +18,8 @@ if (isset($_GET['post_id'])) {
       post.`image`,
       post.`user_id`,
       post.`display`,
+      post.`datetime`,
       revision.`revision_id`,
-      revision.`datetime`,
       revision.`text_content`
     FROM
       (

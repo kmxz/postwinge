@@ -46,8 +46,8 @@ var utilities = (function () {
                 if (prog < 1) {
                     window.requestAnimationFrame(anim);
                 } else {
-                    callback();
                     document.body.style.pointerEvents = 'auto';
+                    callback();
                 }
             };
             window.requestAnimationFrame(anim);

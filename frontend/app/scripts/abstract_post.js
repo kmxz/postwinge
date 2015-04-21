@@ -23,18 +23,20 @@ var abstract = (function () {
         this.core.addEventListener('click', this.click.bind(this));
     };
 
-    var maxZ = 20;
+    var lastHighlight = null;
 
     AbstractSlot.prototype.scrollToCenterOfScreen = function () {
         var cbr = this.el.getBoundingClientRect();
         var left = cbr.left + window.scrollX;
         var top = cbr.top + window.scrollY;
-        this.el.style.zIndex = maxZ++;
-        this.el.classList.remove('highlight');
+        utilities.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2);
+        if (lastHighlight) {
+            lastHighlight.classList.remove('highlight');
+        }
         setTimeout(function () {
+            lastHighlight = this.el;
             this.el.classList.add('highlight');
         }.bind(this), 0);
-        utilities.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2);
     };
 
     AbstractSlot.prototype.click = function () {
@@ -73,6 +75,7 @@ var abstract = (function () {
 
     AbstractSlot.prototype.popout = function (callback) {
         if (this.popoutDummy) { return; } // already got one!
+        this.el.classList.remove('highlight'); // well, I don't know why, but this just solves the problem
         document.body.classList.add('modal-open');
         this.inAnimation = true;
         this.popoutDummy = this.el.cloneNode(false);

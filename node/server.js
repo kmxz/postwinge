@@ -63,5 +63,5 @@ redis.on('message', function (channel, data) {
   legal.forEach(function (client) {
     client.send(JSON.stringify([parsed]));
   });
-  console.log('forwarded to ' + legal.length + 'clients!');
+  console.log('forwarded to ' + legal.length + ' clients!');
 });

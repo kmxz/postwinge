@@ -7,6 +7,8 @@
 @postDefaultBackground: rgba(249,249,249,0.6);
 @postActiveBackground: rgba(249,249,249,0.8);
 
+@sidebarWidth: 280px;
+
 html, body {
   margin: 0;
   border: 0;
@@ -22,7 +24,17 @@ textarea.form-control {
   resize: none;
   font-size: 13px;
   height: 100px;
+  color: #333;
 }
+
+.placeholder {
+  color: #666 !important;
+}
+
+::-webkit-input-placeholder { .placeholder; }
+:-moz-placeholder { .placeholder; }
+::-moz-placeholder { .placeholder; }
+:-ms-input-placeholder { .placeholder; }
 
 .doppelganger {
   position: absolute;
@@ -33,7 +45,6 @@ textarea.form-control {
 
 #canvas-post, #canvas-note {
   display: none;
-  z-index: 10;
   opacity: 0;
   user-select: none;
   &.loaded {
@@ -47,7 +58,7 @@ textarea.form-control {
   height: @canvasGrossHeight;
   position: relative;
   display: none;
-  z-index: 15;
+  z-index: 10;
   opacity: 0;
   user-select: none;
 }
@@ -106,6 +117,7 @@ textarea.form-control {
     animation-duration: (2 * @duration);
     animation-iteration-count: 2;
     animation-direction: alternate;
+    z-index: 15;
   }
   &.killed {
     opacity: 0;
@@ -164,13 +176,13 @@ iframe { // for log-in
 
 #sidebar {
   height: 100%;
-  width: 280px;
+  width: @sidebarWidth;
   padding: 20px;
   background: linear-gradient(to right, rgba(204,204,204,0.65) 0%, rgba(204,204,204,0.95) 100%);
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 1020;
+  z-index: 20;
   box-shadow: -5px 0 5px -5px rgba(0, 0, 0, 0.5);
   color: #01252f;
 }
@@ -228,12 +240,12 @@ iframe { // for log-in
 #warning {
   width: 100%;
   position: fixed;
-  z-index: 2000;
+  z-index: 100;
   display: none;
 }
 
 #shed {
-  z-index: 1050;
+  z-index: 25;
   width: 100%;
   height: 100%;
   position: fixed;
@@ -300,11 +312,13 @@ input[type=file] {
 
 .target {
   height: @postHeight;
+  white-space: nowrap;
 }
 
 .note-single {
   width: @postProperWidth;
   height: @postHeight;
+  white-space: normal; // because .target has set nowrap, we need to recover
   background: @postDefaultBackground;
   position: relative;
   display: inline-block;
@@ -330,10 +344,13 @@ input[type=file] {
       background: @postActiveBackground;
     }
   }
+  &:last-child {
+    margin-right: (@sidebarWidth + @postWingWidth + 6px);
+  }
 }
 
 .cloned {
-  z-index: 1100;
+  z-index: 30;
   position: fixed;
   margin: 0; // for note-single
   .post-core, .left-arrow, .left-wing, .right-arrow, .right-wing, .post-extended, .post-proper, .post-bg, .edit {
@@ -347,6 +364,9 @@ input[type=file] {
     margin-top: -@postHeight;
     padding: 20px 20px 56px 20px;
     overflow: auto;
+    p {
+      color: #333;
+    }
     .bottom-btns {
       text-align: center;
       position: absolute;
