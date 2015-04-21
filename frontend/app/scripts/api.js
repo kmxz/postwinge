@@ -8,6 +8,12 @@ var api = (function () {
     var IMAGE_URL = SERVER + '/upload/'; // with trailing slash
     var WEBSOCKET_URL = 'ws:' + SERVER + ':8080/'; // with trailing slash
 
+    var actionHandlers = {
+        'logout': function () {
+            localStorage.removeItem('ptSession');
+        }
+    };
+
     var actions = {
         // all revisions of a specific post
         'revisions': {method: 'get', url: 'list.php', params: ['post_id']},
@@ -40,6 +46,7 @@ var api = (function () {
             var params = opt_params || [];
             var formData = null;
             var hasParam = config.params && config.params.length;
+            var session = localStorage.getItem('ptSession');
             if (hasParam) {
                 config.params.forEach(function (key) {
                     if (!(params.hasOwnProperty(key))) {
@@ -48,13 +55,13 @@ var api = (function () {
                 });
             }
             if (config.method === 'post') {
-                if (!localStorage['ptSession']) {
+                if (!session) {
                     window.alert('Please log in to enjoy this feature.');
                     onerror();
                     return;
                 }
                 formData = new FormData();
-                formData.append('key', localStorage['ptSession']);
+                formData.append('key', session);
                 if (hasParam) {
                     config.params.forEach(function (key) {
                         formData.append(key, params[key]);
@@ -80,7 +87,10 @@ var api = (function () {
                     if (res['success']) {
                         onsucess(res['data']);
                     } else {
-                        window.alert(res['data']);
+                        window.alert(res['message']);
+                        if (res['action']) {
+                            actionHandlers[res['action']]();
+                        }
                         onerror();
                     }
                 } else {

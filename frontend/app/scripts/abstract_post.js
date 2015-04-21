@@ -27,7 +27,10 @@ var abstract = (function () {
         var cbr = this.el.getBoundingClientRect();
         var left = cbr.left + window.scrollX;
         var top = cbr.top + window.scrollY;
-        utilities.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2);
+        this.el.classList.add('highlight');
+        utilities.scrollTo(left - document.documentElement.clientWidth / 2 + (rosetta.postGrossWidth.val - 2 * rosetta.postWingWidth.val) / 2, top - document.documentElement.clientHeight / 2 + rosetta.postHeight.val / 2, function () {
+            this.el.classList.remove('highlight');
+        }.bind(this));
     };
 
     AbstractSlot.prototype.click = function () {
@@ -111,11 +114,9 @@ var abstract = (function () {
         this.inAnimation = true;
         this.popoutExtended.style.pointerEvents = 'none';
         var rect = this.popoutDummy.getBoundingClientRect();
-        setTimeout(function () {
-            this.el.classList.remove('animate-stage2');
-            shed.classList.remove('shown');
-            this.setPopoutYToInitial(rect);
-        }.bind(this), 0);
+        this.el.classList.remove('animate-stage2');
+        shed.classList.remove('shown');
+        this.setPopoutYToInitial(rect);
         setTimeout(function () {
             this.el.classList.remove('animate-stage1');
             this.el.classList.remove('hover');
@@ -134,6 +135,18 @@ var abstract = (function () {
             this.popinScheduled = false;
             this.popoutExtended = null;
             document.body.classList.remove('modal-open');
+        }.bind(this), rosetta.duration.val * 2000);
+    };
+
+    AbstractSlot.prototype.popAbort = function () { // currently used by Note only
+        this.inAnimation = true;
+        this.popoutExtended.style.pointerEvents = 'none';
+        this.popoutDummy.parentNode.removeChild(this.popoutDummy); // remove immediately
+        this.el.classList.add('killed');
+        shed.classList.remove('shown');
+        setTimeout(function () {
+            this.el.parentNode.removeChild(this.el);
+            shed.style.display = 'none';
         }.bind(this), rosetta.duration.val * 2000);
     };
 
@@ -233,7 +246,7 @@ var abstract = (function () {
             dom.create('legend', null, 'Post details'),
             dom.create('div', { className: ['panel', 'panel-default'] }, dom.create('div', { className: 'panel-body' }, [
                 'This post is published by ',
-                dom.create('span', { className: 'name' }, this.display || 'Anonymous user'),
+                dom.create('span', { className: 'name' }, this.display || 'anonymous user'),
                 ' on ',
                 this.datetime
             ])),

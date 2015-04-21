@@ -31,9 +31,13 @@ function redis($close = FALSE) {
   return $redis;
 }
 
-function panic($reason) {
+function panic($reason, $action = NULL) {
   mysqli(true); redis(true);
-  die(json_encode(array('success' => FALSE, 'data' => $reason)));
+  $data = array('success' => FALSE, 'message' => $reason);
+  if ($action) {
+    $data['action'] = $action;
+  }
+  die(json_encode($data));
 }
 
 function success($data) {
@@ -60,7 +64,7 @@ function get_display($user_id) {
   $stmt->bind_param('i', $user_id);
   if (!$stmt->execute()) { panic('SQL Error!'); }
   $result = $stmt->get_result()->fetch_row();
-  if (!$result) { panic('The account has been deleted. Enjoy your day.'); }
+  if (!$result) { panic('The account has been deleted.'); }
   return $result[0];
 }
 

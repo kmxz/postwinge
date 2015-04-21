@@ -108,14 +108,6 @@ var mainPost = (function () {
 
     utilities.inherits(Post, abstract.Post);
 
-    var preventThen = function (realCallback) {
-        return function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            realCallback(e);
-        };
-    };
-
     Post.prototype.createFileUpload = function () {
         if (this.image) { return; } // don't init if we already have one image
         var instance = this;
@@ -160,15 +152,15 @@ var mainPost = (function () {
                 upload(input.files[0]);
             }
         });
-        imgPanel.addEventListener('dragover', preventThen(function () {
+        imgPanel.addEventListener('dragover', dom.preventThen(function () {
             if (imgPanel.lastChild !== pb1) { return; }
             setPb(pb2);
         }));
-        imgPanel.addEventListener('dragleave', preventThen(function () {
+        imgPanel.addEventListener('dragleave', dom.preventThen(function () {
             if (imgPanel.lastChild !== pb2) { return; }
             setPb(pb1);
         }));
-        imgPanel.addEventListener('drop', preventThen(function (e) {
+        imgPanel.addEventListener('drop', dom.preventThen(function (e) {
             if (imgPanel.lastChild !== pb2) { return; }
             setPb(pb1);
             if (e.dataTransfer.files.length !== 1) {
@@ -291,6 +283,9 @@ var mainPost = (function () {
                         },
                         message: function (data) {
                             var post = posts[data['post_id']];
+                            if (!post) {
+                                console.log(data);
+                            }
                             return [': ', post.createPostnameSpan(post.excerpt()), '.'];
                         }
                     },

@@ -34,7 +34,9 @@ var mainNote = (function() {
     };
 
     Target.prototype.mouseleave = function () {
-        this.head.removeChild(compose);
+        if (compose.parentNode === this.head) {
+            this.head.removeChild(compose);
+        }
     };
 
     Target.prototype.click = function (e) {
@@ -51,6 +53,7 @@ var mainNote = (function() {
         * user cancel, remove fake one
         * */
         var fakeSlot = new NoteSlot(this, null);
+        fakeSlot.el.classList.add('hover');
         fakeSlot.popout(fakeSlot.startEdit.bind(fakeSlot));
     };
 
@@ -114,15 +117,15 @@ var mainNote = (function() {
                 check(input.files[0]);
             }
         });
-        imgPanel.addEventListener('dragover', preventThen(function () {
+        imgPanel.addEventListener('dragover', dom.preventThen(function () {
             if (imgPanel.lastChild !== pb1) { return; }
             setPb(pb2);
         }));
-        imgPanel.addEventListener('dragleave', preventThen(function () {
+        imgPanel.addEventListener('dragleave', dom.preventThen(function () {
             if (imgPanel.lastChild !== pb2) { return; }
             setPb(pb1);
         }));
-        imgPanel.addEventListener('drop', preventThen(function (e) {
+        imgPanel.addEventListener('drop', dom.preventThen(function (e) {
             if (imgPanel.lastChild !== pb2) { return; }
             setPb(pb1);
             if (e.dataTransfer.files.length !== 1) {
@@ -139,10 +142,10 @@ var mainNote = (function() {
     };
 
     NoteSlot.prototype.startEdit = function () {
-        var ta = dom.create('textarea', { placeholder: 'Enter content here (optional)...', className: 'form-control' }, this.textContent);
+        var ta = dom.create('textarea', { placeholder: 'Enter content here (required)...', className: 'form-control' }, this.textContent);
         var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Cancel');
         var saveBtn = dom.create('button', { className: ['btn', 'btn-primary'], type: 'button' }, 'Post');
-        var anonymous = dom.create('checkbox');
+        var anonymous = dom.create('input', { type: 'checkbox' });
         // do not directly change "busy", use two functions below
         var busy = false;
         var setBusy = function () {
@@ -157,7 +160,7 @@ var mainNote = (function() {
         };
         var imgUpload = createFileUpload();
         dom.put(this.popoutExtended, [dom.create('form', null, dom.create('fieldset', null, [
-            dom.create('legend', null, 'Write a post to' + this.target.display),
+            dom.create('legend', null, 'Write a post to ' + this.target.display),
             imgUpload.el,
             dom.create('div', { className: 'form-group' }, ta),
             dom.create('div', { className: 'checkbox' }, dom.create('label', null, [
@@ -167,7 +170,7 @@ var mainNote = (function() {
         ])), dom.create('div', { className: 'bottom-btns' }, [ cancelBtn, ' ', saveBtn ])]);
         cancelBtn.addEventListener('click', function () {
             if (window.confirm('Sure? The content will be discarded if you do so.')) {
-                this.slot.popin();
+                this.popAbort();
             }
         }.bind(this));
         saveBtn.addEventListener('click', function () {
@@ -177,7 +180,7 @@ var mainNote = (function() {
             api.request('noting', function (data) {
                 notification.fromSelf('create', data);
                 this.hijack(notes[data['note_id']]);
-                this.slot.popin();
+                this.popin();
             }.bind(this), {
                 'text_content': content,
                 'image': imgUpload.getFile(),
@@ -216,9 +219,9 @@ var mainNote = (function() {
                     notes[data['note_id']] = new Note(data['note_id'], data['text_content'], data['image'], data['datetime'], data['target_id'], display);
                     notes[data['note_id']].render();
                 },
-                message: function () {
-                    var post = notes[data['post_id']];
-                    return ['posted to ', post.slot.target.display , ': ', post.createPostnameSpan(post.excerpt()), '.'];
+                message: function (data) {
+                    var post = notes[data['note_id']];
+                    return ['posted to ', post.slot.target.display, (post.image ? 'with a picture' : null) ,': ', post.createPostnameSpan(post.excerpt()), '.'];
                 }
             }
         });

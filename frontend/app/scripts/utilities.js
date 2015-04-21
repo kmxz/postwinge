@@ -11,15 +11,28 @@ var utilities = (function () {
         return (t * t * t + 2) / 2;
     };
 
+    var clipScrollX = function (x) {
+        if (x < 0) { return 0; }
+        var maximumScrollable = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+        return Math.min(x, maximumScrollable);
+    };
+
+    var clipScrollY = function (y) {
+        if (y < 0) { return 0; }
+        var maximumScrollable = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        return Math.min(y, maximumScrollable);
+    };
+
     return {
         centerWindow: function () {
             window.scrollTo((document.documentElement.scrollWidth - document.documentElement.clientWidth) / 2, (document.documentElement.scrollHeight - document.documentElement.clientHeight) / 2);
         },
-        scrollTo: function (x, y) {
+        scrollTo: function (x, y, opt_callback) {
             document.body.style.pointerEvents = 'none';
+            var callback = opt_callback || function () {};
             var x0 = window.scrollX;
             var y0 = window.scrollY;
-            var dx = x - x0; var dy = y - y0;
+            var dx = clipScrollX(x) - x0; var dy = clipScrollY(y) - y0;
             var duration = rosetta.duration.val * 2 * 1000;
             var sTime = null;
             var anim = function (time) {
@@ -33,6 +46,7 @@ var utilities = (function () {
                 if (prog < 1) {
                     window.requestAnimationFrame(anim);
                 } else {
+                    callback();
                     document.body.style.pointerEvents = 'auto';
                 }
             };

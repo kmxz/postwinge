@@ -13,7 +13,7 @@ if (isset($_POST['key'])) {
 }
 
 if (!$user_id) {
-  panic('Please log in first!');
+  panic('You are not logged in! You are recommended to refresh this page and log in again.', 'logout');
 }
 
 ?>

@@ -95,6 +95,16 @@ textarea.form-control {
   }
 }
 
+.post, .note-single {
+  transition: 2 * @duration; // this is for .highlight and .killed
+  &.highlight {
+    // TODO
+  }
+  &.killed {
+    opacity: 0;
+  }
+}
+
 .post-proper, .note-single {
   .post-bg {
     width: @postGrossWidth;

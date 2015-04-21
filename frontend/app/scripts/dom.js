@@ -89,6 +89,13 @@ var dom = (function () {
             ta.addEventListener('keydown', resize);
             ta.addEventListener('keyup', resize);
             ta.addEventListener('change', resize);
+        },
+        preventThen: function (realCallback) {
+            return function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                realCallback(e);
+            };
         }
     };
 })();
