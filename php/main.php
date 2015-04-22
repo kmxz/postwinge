@@ -51,7 +51,18 @@ function legal_post_id($post_id, $user_id) {
   $stmt->bind_param('ii', $id, $user_id);
   if (!$stmt->execute()) { panic('SQL Error!'); }
   if (!$stmt->get_result()->fetch_row()) {
-    panic('The post you try to update to does not exist, or does not belong to you!');
+    panic('The post you try to operate does not exist, or does not belong to you!');
+  }
+  return $id;
+}
+
+function legal_note_id($note_id, $user_id) {
+  $id = intval($note_id);
+  $stmt = mysqli()->prepare('SELECT `post_id` FROM `sticky_note` WHERE `note_id` = ? AND `user_id` = ?');
+  $stmt->bind_param('ii', $id, $user_id);
+  if (!$stmt->execute()) { panic('SQL Error!'); }
+  if (!$stmt->get_result()->fetch_row()) {
+    panic('The post you try to operate does not exist, or does not belong to you!');
   }
   return $id;
 }

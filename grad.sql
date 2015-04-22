@@ -9,6 +9,7 @@ CREATE TABLE `post_free` (
   `x_coord` smallint(6) NOT NULL,
   `y_coord` smallint(6) NOT NULL,
   `datetime` datetime NOT NULL,
+  `deleted` tinyint(1) NOT NULL,
   PRIMARY KEY (`post_id`),
   UNIQUE KEY `coord` (`x_coord`,`y_coord`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
@@ -37,6 +38,7 @@ CREATE TABLE `sticky_note` (
   `image` tinytext,
   `user_id` smallint(5) unsigned NOT NULL,
   `anonymous` tinyint(1) NOT NULL,
+  `deleted` tinyint(1) NOT NULL,
   PRIMARY KEY (`note_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 

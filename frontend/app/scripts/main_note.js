@@ -295,6 +295,14 @@ var mainNote = (function() {
                     var post = notes[data['note_id']];
                     return ['posted to ', post.slot.target.display, (post.image ? ' with a picture' : null) ,': ', post.createPostnameSpan(post.excerpt()), '.'];
                 }
+            },
+            'remove': {
+                render: function (data, user_id, display) {
+                    var note = notes[data['note_id']];
+                    if (!note) { return; }
+                    note.el.parentNode.removeChild(note.el);
+                    delete notes[data['note_id']];
+                }
             }
         });
         keyFindInit();

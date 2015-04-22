@@ -30,7 +30,7 @@ var api = (function () {
         // update a post
         'update': {method: 'post', url: 'update.php', params: ['post_id', 'text_content']},
         // delete a post
-        'remove': {method: 'post', url: 'remove.php', params: ['post_id']},
+        'remove': {method: 'post', url: 'remove_post.php', params: ['post_id']},
         // create a new note
         'noting': {method: 'post', url: 'noting.php', params: ['target_id', 'text_content', 'image', 'anonymous']},
         // whoami
