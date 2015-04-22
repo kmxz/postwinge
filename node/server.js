@@ -8,23 +8,34 @@ var redis = require('redis').createClient();
 var WebSocketServer = require('ws').Server;
 var url = require('url');
 
-var log = {};
 var messages = {};
 
-['post-create', 'post-update', 'note'].forEach(function (type) {
-  var logFile = __dirname + '/../log/node_' + type + '.log';
-  var logStream = fs.createWriteStream(logFile, { flags: 'a', encoding: 'utf8' });
-  log[type] = function (content) {
-    logStream.write(content + '\n');
-    console.log(content);
-  };
+var logFile = __dirname + '/../log/node_united.log';
+var logStream = fs.createWriteStream(logFile, { flags: 'a', encoding: 'utf8' });
+
+var log = function (type, content) {
+  logStream.write(JSON.stringify({ type: type, content: content }) + '\n');
+  console.log(type + ' - ' + content);
+};
+
+var channels = ['post-create', 'post-update', 'note'];
+
+channels.forEach(function (type) {
   messages[type] = [];
-  try {
-    messages[type] = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; }).slice(-25).map(function (line) { return JSON.parse(line); });
-    console.log(type + ': ' + messages[type].length + ' previous entries imported from log.');
-  } catch (e) {
-    console.log(type + ': ' + 'No previous log imported.');
-  }
+});
+
+try {
+  var lines = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; });
+  lines.forEach(function (line) {
+    var entry = JSON.parse(line);
+    messages[entry.type].push(entry.content); // FIXME check with previous ones!
+  });
+  console.log(lines.length + ' previous entries imported from log.');
+} catch (e) {
+  console.log('No previous log imported.');
+}
+
+channels.forEach(function (type) {
   redis.subscribe(type);
 });
 
@@ -51,7 +62,7 @@ wss.on('connection', function (ws) {
 });
 
 redis.on('message', function (channel, data) {
-  log[channel](data);
+  log(channel, data); // FIXME check with previous ones
   var parsed = JSON.parse(data);
   messages[channel].push(parsed);
   if (messages.length > 25) {

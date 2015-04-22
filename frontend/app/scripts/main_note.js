@@ -300,7 +300,8 @@ var mainNote = (function() {
                 render: function (data, user_id, display) {
                     var note = notes[data['note_id']];
                     if (!note) { return; }
-                    note.el.parentNode.removeChild(note.el);
+                    note.slot.el.parentNode.removeChild(note.slot.el);
+                    note.slot = null;
                     delete notes[data['note_id']];
                 }
             }

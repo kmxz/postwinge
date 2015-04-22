@@ -33,6 +33,8 @@ var api = (function () {
         'remove': {method: 'post', url: 'remove_post.php', params: ['post_id']},
         // create a new note
         'noting': {method: 'post', url: 'noting.php', params: ['target_id', 'text_content', 'image', 'anonymous']},
+        // delete a note
+        'unnoting': {method: 'post', url: 'remove_note.php', params: ['note_id']},
         // whoami
         'whoami': {method: 'post', url: 'whoami.php'},
         // login

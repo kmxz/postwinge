@@ -276,7 +276,11 @@ var abstract = (function () {
     AbstractPost.prototype.createPostnameSpan = function (content) {
         var span = dom.create('span', { className: 'postname' }, content);
         span.addEventListener('click', function () {
-            this.slot.scrollToCenterOfScreen();
+            if (this.slot) {
+                this.slot.scrollToCenterOfScreen();
+            } else {
+                window.alert('This post is likely to be deleted already.');
+            }
         }.bind(this));
         return span;
     };

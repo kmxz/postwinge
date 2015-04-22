@@ -237,6 +237,7 @@ var mainPost = (function () {
             this.slot.popoutDummy.classList.add('empty');
         }
         this.slot.post = null;
+        this.slot = null;
         delete posts[this.postId];
     };
 
