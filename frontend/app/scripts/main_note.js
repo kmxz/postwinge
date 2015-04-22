@@ -266,6 +266,7 @@ var mainNote = (function() {
             } else {
                 return;
             }
+            e.preventDefault();
             updateHint();
         });
     };

@@ -105,7 +105,7 @@ var api = (function () {
             xhr.send(formData);
         },
         image: function (filename, thumb) {
-            return IMAGE_URL + (thumb ? (filename.split('.', 1)[0] + '_thumb' + '.jpg') : filename) + '?FUCK_YOUR_MOTHER_ITSC&' + Math.random();
+            return IMAGE_URL + (thumb ? (filename.split('.', 1)[0] + '_thumb' + '.jpg') : filename);
         },
         websockets: WEBSOCKET_URL
     };
