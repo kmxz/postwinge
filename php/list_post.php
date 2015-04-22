@@ -36,6 +36,7 @@ if (isset($_GET['post_id'])) {
           LEFT JOIN
           `user`
           ON `post_free`.`user_id` = `user`.`user_id`
+        WHERE `post_free`.`deleted` = 0
       ) post
       LEFT JOIN
       (
@@ -46,7 +47,7 @@ if (isset($_GET['post_id'])) {
           LEFT JOIN
           `post_free_revision` r2
           ON (r1.`post_id` = r2.`post_id` AND r1.`revision_id` < r2.`revision_id`)
-          WHERE r2.`revision_id` IS NULL
+        WHERE r2.`revision_id` IS NULL
       ) revision
       ON post.`post_id` = revision.`post_id`
   ');

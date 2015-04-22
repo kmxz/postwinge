@@ -16,6 +16,7 @@ $stmt = mysqli()->prepare('
     LEFT JOIN
     `user`
     ON `sticky_note`.`user_id` = `user`.`user_id`
+  WHERE `sticky_note`.`deleted` = 0
   ORDER BY
     `sticky_note`.`note_id` ASC
 ');
