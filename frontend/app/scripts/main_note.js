@@ -303,6 +303,7 @@ var mainNote = (function() {
     return {
         posts: notes,
         init: function () {
+            document.getElementById('hint-hint-sidebar').style.display = 'block';
             api.request('targets', function (data) {
                 data.forEach(function (target) {
                    targets[target['user_id']] = new Target(target['user_id'], target['index_name'], target['display']);
