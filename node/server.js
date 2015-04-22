@@ -18,17 +18,24 @@ var log = function (type, content) {
   console.log(type + ' - ' + content);
 };
 
-var channels = ['post-create', 'post-update', 'note'];
+var channels = ['post', 'note'];
 
 channels.forEach(function (type) {
   messages[type] = [];
 });
 
+var fuck = function (type, content) {
+  if (content.type === 'remove') {
+    // TODO
+  }
+}
+
 try {
   var lines = fs.readFileSync(logFile, { encoding: 'utf8' }).split('\n').filter(function (line) { return line.trim().length; });
   lines.forEach(function (line) {
     var entry = JSON.parse(line);
-    messages[entry.type].push(entry.content); // FIXME check with previous ones!
+    messages[entry.type].push(entry.content);
+    fuck(entry.type, entry.content);
   });
   console.log(lines.length + ' previous entries imported from log.');
 } catch (e) {
@@ -41,31 +48,20 @@ channels.forEach(function (type) {
 
 var wss = new WebSocketServer({ port: 8080, verifyClient: function (info, cb) {
   var u = url.parse(info.req.url);
-  switch (u.pathname.split('/')[1]) {
-    case 'post':
-      info.req.channels = ['post-create', 'post-update'];
-      cb(true);
-      break;
-    case 'note':
-      info.req.channels = ['note'];
-      cb(true);
-      break;
-    default:
-      cb(false);
-  }
+  info.req.channel = u.pathname.split('/')[1];
+  cb(u && (channels.indexOf(info.req.channel) >= 0));
 }});
 
 wss.on('connection', function (ws) {
-  ws.upgradeReq.channels.forEach(function (channel) {
-    ws.send(JSON.stringify(messages[channel]));
-  });
+  ws.send(JSON.stringify(messages[ws.upgradeReq.channel].slice(-20))); // send last 20 to client
 });
 
 redis.on('message', function (channel, data) {
-  log(channel, data); // FIXME check with previous ones
+  log(channel, data);
   var parsed = JSON.parse(data);
+  fuck(channel, data);
   messages[channel].push(parsed);
-  if (messages.length > 25) {
+  if (messages.length > 40) { // keep 40 in memory
     messages.shift();
   }
   var legal = wss.clients.filter(function (client) {
