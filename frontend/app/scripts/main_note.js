@@ -46,16 +46,7 @@ var mainNote = (function() {
     };
 
     Target.prototype.click = function (e) {
-        if (!dom.hasAncestor(e.target, composeBtn)) {
-            return;
-        }
-        if (!login.getUserId()) {
-            window.alert('Please log in to enjoy this feature.');
-            return;
-        }
-        var fakeSlot = new NoteSlot(this, null);
-        fakeSlot.el.classList.add('hover');
-        fakeSlot.popout(fakeSlot.startEdit.bind(fakeSlot));
+        window.alert('Sorry, the project has stopped and the functionality is disabled.');
     };
 
     Target.prototype.scrollTo = function () {
@@ -91,114 +82,11 @@ var mainNote = (function() {
     };
 
     var createFileUpload = function () {
-        var fileToUpload = null;
-        var input = dom.create('input', { type: 'file' });
-        var pb1 = dom.create('div', { className: 'panel-body' }, [
-            'Drag your image here directly, or ',
-            input
-        ]);
-        var pb2 = dom.create('div', { className: 'panel-body' }, [
-            'Just release your mouse here...'
-        ]);
-        var pb3 = dom.create('div', { className: 'panel-body' }, [
-            'Image selected.'
-        ]);
-        var imgPanel = dom.create('div', { className: ['panel', 'panel-primary'] }, [
-            dom.create('div', { className: 'panel-heading' }, dom.create('h3', { className: 'panel-title' }, 'Add a picture (optional)')),
-            pb1
-        ]);
-        var setPb = function (pb) {
-            imgPanel.replaceChild(pb, imgPanel.lastChild);
-        };
-        var check = function (file) {
-            if (file.type.split('/', 1)[0] !== 'image') {
-                window.alert('Please upload an image, not other types of file.');
-                return;
-            }
-            setPb(pb3);
-            fileToUpload = file;
-            imgPanel.classList.remove('panel-primary');
-            imgPanel.classList.add('panel-default');
-        };
-        input.addEventListener('change', function () {
-            if (input.files.length === 1) {
-                check(input.files[0]);
-            }
-        });
-        imgPanel.addEventListener('dragenter', dom.preventThen(function () {}));
-        imgPanel.addEventListener('dragover', dom.preventThen(function () {
-            if (imgPanel.lastChild !== pb1) { return; }
-            setPb(pb2);
-        }));
-        imgPanel.addEventListener('dragleave', dom.preventThen(function () {
-            if (imgPanel.lastChild !== pb2) { return; }
-            setPb(pb1);
-        }));
-        imgPanel.addEventListener('drop', dom.preventThen(function (e) {
-            if (imgPanel.lastChild !== pb2) { return; }
-            setPb(pb1);
-            if (e.dataTransfer.files.length !== 1) {
-                window.alert('Please add one and only one file!'); return;
-            }
-            check(e.dataTransfer.files[0]);
-        }));
-        return {
-            el: imgPanel,
-            getFile: function () {
-                return fileToUpload;
-            }
-        };
+        window.alert('Sorry, the project has stopped and the functionality is disabled.');
     };
 
     NoteSlot.prototype.startEdit = function () {
-        var ta = dom.create('textarea', { placeholder: 'Enter content here (required)...', className: 'form-control' }, this.textContent);
-        var cancelBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Cancel');
-        var saveBtn = dom.create('button', { className: ['btn', 'btn-primary'], type: 'button' }, 'Post');
-        var anonymous = dom.create('input', { type: 'checkbox' });
-        // do not directly change "busy", use two functions below
-        var busy = false;
-        var setBusy = function () {
-            busy = true;
-            cancelBtn.classList.add('disabled');
-            saveBtn.classList.add('disabled');
-        };
-        var unsetBusy = function () {
-            busy = false;
-            cancelBtn.classList.remove('disabled');
-            saveBtn.classList.remove('disabled');
-        };
-        var imgUpload = createFileUpload();
-        dom.put(this.popoutExtended, [dom.create('form', null, [
-            dom.create('legend', null, 'Write a post to ' + this.target.display),
-            imgUpload.el,
-            dom.create('div', { className: 'form-group' }, ta),
-            dom.create('div', { className: 'checkbox' }, dom.create('label', null, [
-                anonymous,
-                ' Post anonymously'
-            ]))
-        ])]);
-        dom.put(this.bottomBtns, [ cancelBtn, ' ', saveBtn ]);
-        cancelBtn.addEventListener('click', function () {
-            if (window.confirm('Sure? The content will be discarded if you do so.')) {
-                this.popAbort();
-            }
-        }.bind(this));
-        saveBtn.addEventListener('click', function () {
-            if (busy) { return; }
-            var content = ta.value.trim();
-            setBusy();
-            api.request('noting', function (data) {
-                notification.fromSelf(data);
-                this.hijack(notes[data['data']['note_id']]);
-                this.popin();
-            }.bind(this), {
-                'text_content': content,
-                'image': imgUpload.getFile(),
-                'target_id': this.target.targetId,
-                'anonymous': anonymous.checked
-            }, unsetBusy);
-        }.bind(this));
-        dom.autoResize(ta);
+        window.alert('Sorry, the project has stopped and the functionality is disabled.');
     };
 
     var Note = function (noteId, textContent, image, datetime, targetId, display) {
@@ -283,21 +171,6 @@ var mainNote = (function() {
         utilities.randomScrollY();
         canvas.classList.add('loaded');
         hintHint.classList.add('killed');
-        notification.startWebsockets('note', {
-            'create': {
-                render: function (data, user_id, display) {
-                    if (notes[data['note_id']]) {
-                        return;
-                    }
-                    notes[data['note_id']] = new Note(data['note_id'], data['text_content'], data['image'], data['datetime'], data['target_id'], display);
-                    notes[data['note_id']].render();
-                },
-                message: function (data) {
-                    var post = notes[data['note_id']];
-                    return ['posted to ', post.slot.target.display, (post.image ? ' with a picture' : null) ,': ', post.createPostnameSpan(post.excerpt()), '.'];
-                }
-            }
-        });
         keyFindInit();
     };
 

@@ -242,11 +242,6 @@ var abstract = (function () {
         closeBtn.addEventListener('click', function () {
             this.slot.popin();
         }.bind(this));
-        var editBtn = null;
-        if (this.userId === login.getUserId()) {
-            editBtn = dom.create('button', { className: ['btn', 'btn-default'], type: 'button' }, 'Edit');
-            editBtn.addEventListener('click', this.startEdit.bind(this));
-        }
         var imgEl = null;
         if (this.image) {
             imgEl = dom.create('img', { className: 'content-img', src: api.image(this.image) });
@@ -265,7 +260,7 @@ var abstract = (function () {
             imgEl,
             dom.create('div', null, dom.nl2p(this.textContent)),
         ]));
-        dom.put(this.slot.bottomBtns, editBtn ? [ editBtn, ' ', closeBtn ] : closeBtn);
+        dom.put(this.slot.bottomBtns, closeBtn);
     };
 
     AbstractPost.prototype.excerpt = function () {
